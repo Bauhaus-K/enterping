@@ -4,7 +4,7 @@ const LOCAL_ADMIN_EMAILS = new Set([
   "haru.demo@enterping.local",
 ]);
 
-const LOCAL_ADMIN_USERNAMES = new Set([
+const DEFAULT_ADMIN_USERNAMES = new Set([
   "mailron",
 ]);
 
@@ -13,22 +13,20 @@ export function isAdminUser(user: CurrentUser | null): boolean {
     return false;
   }
 
+  const email = user.email.toLowerCase();
+  const username = user.username.toLowerCase();
   const configuredEmails = getConfiguredAdminEmails();
-  const configuredUsernames = getConfiguredAdminUsernames();
+  const adminUsernames = getAdminUsernames();
 
-  if (configuredEmails.size > 0) {
-    return configuredEmails.has(user.email.toLowerCase());
+  if (configuredEmails.has(email)) {
+    return true;
   }
 
-  if (configuredUsernames.size > 0) {
-    return configuredUsernames.has(user.username.toLowerCase());
+  if (adminUsernames.has(username)) {
+    return true;
   }
 
-  return (
-    process.env.NODE_ENV !== "production" &&
-    (LOCAL_ADMIN_EMAILS.has(user.email.toLowerCase()) ||
-      LOCAL_ADMIN_USERNAMES.has(user.username.toLowerCase()))
-  );
+  return process.env.NODE_ENV !== "production" && LOCAL_ADMIN_EMAILS.has(email);
 }
 
 function getConfiguredAdminEmails(): Set<string> {
@@ -40,11 +38,11 @@ function getConfiguredAdminEmails(): Set<string> {
   );
 }
 
-function getConfiguredAdminUsernames(): Set<string> {
-  return new Set(
-    (process.env.ADMIN_USERNAMES ?? "")
-      .split(",")
-      .map((username) => username.trim().toLowerCase())
-      .filter(Boolean),
-  );
+function getAdminUsernames(): Set<string> {
+  const configuredUsernames = (process.env.ADMIN_USERNAMES ?? "")
+    .split(",")
+    .map((username) => username.trim().toLowerCase())
+    .filter(Boolean);
+
+  return new Set([...DEFAULT_ADMIN_USERNAMES, ...configuredUsernames]);
 }
