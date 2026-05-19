@@ -4,7 +4,6 @@ import {
   getJpopSongById,
   JPOP_SONGS,
 } from "../../lib/jpopSongs";
-import { LEMON_DEMO_LYRIC_LINES } from "../../lib/lemonDemoLyrics";
 import { loadJpopSongLyrics } from "../../lib/loadSongLyrics";
 import { prisma } from "../../lib/prisma";
 import { TypingInputMode } from "../../lib/typingEngine";
@@ -37,7 +36,11 @@ export default async function PlayPage({ searchParams }: PlayPageProps) {
 }
 
 async function getGameData(selectedContentId: string) {
-  // 1) 정적 JPOP 카탈로그를 우선 확인 (DB 없이도 즉시 재생 가능)
+  const databaseGameData = await getDatabaseGameData(selectedContentId);
+  if (databaseGameData) {
+    return databaseGameData;
+  }
+
   const staticSong = getJpopSongById(selectedContentId);
   if (staticSong) {
     const lyrics = await loadJpopSongLyrics(staticSong);
@@ -48,6 +51,14 @@ async function getGameData(selectedContentId: string) {
     };
   }
 
+  return {
+    userId: fallbackDemoData.user.id,
+    content: fallbackDemoData.gameContent,
+    lyrics: fallbackDemoData.lyricSyncs,
+  };
+}
+
+async function getDatabaseGameData(selectedContentId: string) {
   try {
     const [user, content] = await Promise.all([
       prisma.user.findUnique({
@@ -66,12 +77,8 @@ async function getGameData(selectedContentId: string) {
       }),
     ]);
 
-    if (!content) {
-      return {
-        userId: fallbackDemoData.user.id,
-        content: fallbackDemoData.gameContent,
-        lyrics: fallbackDemoData.lyricSyncs,
-      };
+    if (!content || content.lyricSyncs.length === 0) {
+      return null;
     }
 
     return {
@@ -92,19 +99,14 @@ async function getGameData(selectedContentId: string) {
         startMs: lyricSync.startMs,
         endMs: lyricSync.endMs,
         japaneseText: lyricSync.japaneseText,
-        typingText: LEMON_DEMO_LYRIC_LINES[lyricSync.lineIndex]?.typingText ?? lyricSync.japaneseText,
+        typingText: lyricSync.japaneseText,
         romajiText: lyricSync.romajiText,
         koreanPronunciationText: lyricSync.koreanPronunciationText,
       })),
     };
   } catch (error) {
-    console.warn("[Enterping][Play] Failed to load play data. Falling back to bundled demo data.", error);
-
-    return {
-      userId: fallbackDemoData.user.id,
-      content: fallbackDemoData.gameContent,
-      lyrics: fallbackDemoData.lyricSyncs,
-    };
+    console.warn("[Enterping][Play] Failed to load DB play data. Falling back to bundled songs.", error);
+    return null;
   }
 }
 

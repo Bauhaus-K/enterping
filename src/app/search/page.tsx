@@ -18,7 +18,7 @@ interface SearchResult {
 const SONG_ALIASES: Record<string, string[]> = {
   "jpop-lemon": ["lemon", "レモン", "れもん", "레몬", "米津玄師", "요네즈 켄시"],
   "jpop-pretender": ["pretender", "プリテンダー", "프리텐더", "official髭男dism", "higedan", "히게단"],
-  "jpop-gunjo": ["gunjo", "群青", "ぐんじょう", "군청", "yoasobi"],
+  "jpop-gunjo": ["walking with you", "walking", "novelbright", "워킹 위드 유", "ウォーキングウィズユー"],
   "jpop-gurenge": ["gurenge", "紅蓮華", "ぐれんげ", "홍련화", "lisa"],
 };
 

@@ -55,7 +55,7 @@ async function main() {
         lineIndex: index,
         startMs: line.startMs,
         endMs: line.endMs,
-        japaneseText: line.displayText,
+        japaneseText: line.typingText,
         romajiText: getAcceptedInputs(line.typingText, TypingInputMode.Romaji)[0] ?? "",
         koreanPronunciationText: getAcceptedInputs(line.typingText, TypingInputMode.Hangul)[0] ?? "",
       })),
