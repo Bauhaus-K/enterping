@@ -38,6 +38,11 @@ enum RewardMetric {
   ACCURACY_STREAK
 }
 
+enum QuizCategory {
+  JPOP
+  ANIME
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -240,5 +245,41 @@ model Notice {
 
   @@index([authorId])
   @@index([isPublished, isPinned, publishedAt])
+  @@index([createdAt])
+}
+
+model QuizQuestion {
+  id String @id @default(cuid())
+
+  slug     String       @unique
+  category QuizCategory
+
+  prompt String
+  clue   String @db.Text
+  answer String
+
+  acceptedAnswers String[]
+
+  workTitle      String
+  artistOrStudio String
+  tags           String[]
+
+  difficulty Int @default(1)
+  sortOrder  Int @default(0)
+
+  youtubeVideoId       String?
+  audioStartSeconds    Int?
+  audioDurationSeconds Int?
+
+  thumbnailUrl   String?
+  revealImageUrl String?
+
+  isPublished Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category, isPublished, sortOrder])
+  @@index([slug])
   @@index([createdAt])
 }

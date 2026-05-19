@@ -22,7 +22,8 @@ export async function SiteHeader() {
         <Link href="/typing">타이핑</Link>
         <Link href="/quiz">퀴즈</Link>
         <Link href="/notices">공지</Link>
-        {canOpenAdmin ? <Link href="/admin/notices">관리자</Link> : null}
+        {canOpenAdmin ? <Link href="/admin/quiz">퀴즈관리</Link> : null}
+        {canOpenAdmin ? <Link href="/admin/notices">공지관리</Link> : null}
       </nav>
 
       <div className={styles.actions}>
