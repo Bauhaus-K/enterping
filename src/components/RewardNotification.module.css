@@ -1,0 +1,115 @@
+.toast {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 50;
+  width: min(420px, calc(100vw - 32px));
+}
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(3, 7, 12, 0.68);
+  backdrop-filter: blur(14px);
+}
+
+.modal {
+  width: min(520px, 100%);
+}
+
+.card {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 24px;
+  color: #fff8e7;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(255, 207, 122, 0.28), transparent 38%),
+    linear-gradient(135deg, rgba(16, 21, 24, 0.96), rgba(37, 24, 13, 0.96));
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.36);
+  font-family: "Afacad Flux", "Yu Gothic", "Hiragino Sans", sans-serif;
+}
+
+.badgeIcon,
+.titleIcon {
+  display: grid;
+  width: 62px;
+  height: 62px;
+  place-items: center;
+  border-radius: 20px;
+  color: #10130f;
+  font-weight: 950;
+  letter-spacing: -0.06em;
+}
+
+.badgeIcon {
+  background: linear-gradient(135deg, #ffcf7a, #f87171);
+}
+
+.titleIcon {
+  background: linear-gradient(135deg, #44d7c7, #ffcf7a);
+}
+
+.copy {
+  min-width: 0;
+}
+
+.copy span {
+  color: #44d7c7;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.copy h3 {
+  margin: 4px 0;
+  font-size: clamp(1.35rem, 3vw, 2.2rem);
+  letter-spacing: -0.05em;
+  line-height: 0.98;
+}
+
+.copy p {
+  margin: 0;
+  color: rgba(255, 248, 231, 0.68);
+}
+
+.closeButton {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  color: #fff8e7;
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 900;
+}
+
+@media (max-width: 520px) {
+  .toast {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .card {
+    grid-template-columns: auto 1fr;
+  }
+
+  .closeButton {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+  }
+}

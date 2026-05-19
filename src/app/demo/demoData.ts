@@ -1,0 +1,99 @@
+import type { DemoSandboxProps } from "./DemoSandbox";
+import { buildLemonDemoLyricSyncData } from "../../lib/lemonDemoLyrics";
+
+export const fallbackDemoData: DemoSandboxProps = {
+  user: {
+    id: "demo-user-haru",
+    username: "haru_typing",
+    displayName: "Haru Typing",
+    isPremium: false,
+  },
+  gameContent: {
+    id: "demo-content-jpop-lemon",
+    youtubeVideoId: "SX_ViT4Ra7k",
+    title: "Lemon - Full Demo Typing Edit",
+    artist: "Kenshi Yonezu",
+    category: "JPOP",
+    thumbnailUrl: "https://i.ytimg.com/vi/SX_ViT4Ra7k/hqdefault.jpg",
+    syncOffsetMs: 0,
+  },
+  lyricSyncs: buildLemonDemoLyricSyncData(),
+  dashboard: {
+    typoLogs: [
+      {
+        id: "demo-typo-1",
+        targetCharacter: "t",
+        inputtedCharacter: "r",
+        contextualPreviousWord: "ma",
+        createdAt: "2026-04-21T09:00:00.000Z",
+      },
+      {
+        id: "demo-typo-2",
+        targetCharacter: "u",
+        inputtedCharacter: "i",
+        contextualPreviousWord: "ts",
+        createdAt: "2026-04-22T09:00:00.000Z",
+      },
+      {
+        id: "demo-typo-3",
+        targetCharacter: "c",
+        inputtedCharacter: "x",
+        contextualPreviousWord: "",
+        createdAt: "2026-04-23T09:00:00.000Z",
+      },
+      {
+        id: "demo-typo-4",
+        targetCharacter: "h",
+        inputtedCharacter: "j",
+        contextualPreviousWord: "c",
+        createdAt: "2026-04-24T09:00:00.000Z",
+      },
+      {
+        id: "demo-typo-5",
+        targetCharacter: "n",
+        inputtedCharacter: "m",
+        contextualPreviousWord: "yu",
+        createdAt: "2026-04-25T09:00:00.000Z",
+      },
+    ],
+    sessions: [
+      { id: "demo-session-1", startedAt: "2026-04-21T09:00:00.000Z", strokesPerMinute: 168, accuracy: 88.2, score: 960, playtimeMs: 210000 },
+      { id: "demo-session-2", startedAt: "2026-04-22T09:00:00.000Z", strokesPerMinute: 174, accuracy: 90.4, score: 1040, playtimeMs: 222000 },
+      { id: "demo-session-3", startedAt: "2026-04-23T09:00:00.000Z", strokesPerMinute: 182, accuracy: 91.1, score: 1125, playtimeMs: 234000 },
+      { id: "demo-session-4", startedAt: "2026-04-24T09:00:00.000Z", strokesPerMinute: 194, accuracy: 93.6, score: 1250, playtimeMs: 246000 },
+      { id: "demo-session-5", startedAt: "2026-04-25T09:00:00.000Z", strokesPerMinute: 204, accuracy: 94.8, score: 1365, playtimeMs: 258000 },
+      { id: "demo-session-6", startedAt: "2026-04-26T09:00:00.000Z", strokesPerMinute: 211, accuracy: 95.2, score: 1480, playtimeMs: 270000 },
+      { id: "demo-session-7", startedAt: "2026-04-27T09:00:00.000Z", strokesPerMinute: 218, accuracy: 95.8, score: 1540, playtimeMs: 282000 },
+      { id: "demo-session-8", startedAt: "2026-04-28T09:00:00.000Z", strokesPerMinute: 226, accuracy: 96.4, score: 1660, playtimeMs: 294000 },
+      { id: "demo-session-9", startedAt: "2026-04-29T09:00:00.000Z", strokesPerMinute: 221, accuracy: 95.9, score: 1620, playtimeMs: 306000 },
+      { id: "demo-session-10", startedAt: "2026-04-30T09:00:00.000Z", strokesPerMinute: 238, accuracy: 97.1, score: 1785, playtimeMs: 318000 },
+    ],
+    rewards: [
+      {
+        id: "demo-reward-1",
+        slug: "j-pop-beginner",
+        name: "J-Pop Beginner",
+        description: "Cleared your first hour of J-Pop typing time.",
+        kind: "BADGE",
+        icon: "music",
+        unlockedAt: "2026-04-25T09:00:00.000Z",
+        triggerValue: 3600000,
+      },
+      {
+        id: "demo-reward-2",
+        slug: "precision-idol",
+        name: "Precision Idol",
+        description: "Maintained 95%+ accuracy across five consecutive games.",
+        kind: "TITLE",
+        icon: "spark",
+        unlockedAt: "2026-04-30T09:00:00.000Z",
+        triggerValue: 5,
+      },
+    ],
+    aiFeedback: {
+      weakness: "sokuon timing and tsu transitions",
+      tip: "Practice short loops like matte, kitte, tsuyoku, and tsurete while saying the doubled consonant rhythm out loud.",
+      encouragement: "Your speed is already climbing. A little rhythm practice will make the accuracy follow quickly.",
+    },
+  },
+};

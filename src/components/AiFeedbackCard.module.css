@@ -1,0 +1,124 @@
+.card {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  padding: 22px;
+  border: 1px solid rgba(68, 215, 199, 0.2);
+  border-radius: 28px;
+  color: #fff8e7;
+  background:
+    radial-gradient(circle at 92% 0%, rgba(68, 215, 199, 0.26), transparent 34%),
+    radial-gradient(circle at 8% 8%, rgba(255, 207, 122, 0.18), transparent 32%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05)),
+    rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(20px);
+}
+
+.header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.header h3 {
+  margin: 8px 0 0;
+  font-size: clamp(1.6rem, 3vw, 2.8rem);
+  letter-spacing: -0.05em;
+  line-height: 0.95;
+}
+
+.eyebrow,
+.feedbackGrid span,
+.primaryFinding span {
+  display: inline-flex;
+  width: fit-content;
+  color: #44d7c7;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  padding: 6px 10px;
+  border: 1px solid rgba(68, 215, 199, 0.32);
+  border-radius: 999px;
+  background: rgba(68, 215, 199, 0.1);
+}
+
+.orb {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 auto;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 34% 28%, #fff8e7, transparent 18%),
+    linear-gradient(135deg, #44d7c7, #ffcf7a);
+  box-shadow: 0 18px 42px rgba(68, 215, 199, 0.26);
+}
+
+.feedbackGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.feedbackGrid section,
+.emptyState,
+.loadingState {
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.primaryFinding {
+  border-color: rgba(255, 207, 122, 0.3) !important;
+  background: rgba(255, 207, 122, 0.1) !important;
+}
+
+.primaryFinding strong {
+  display: block;
+  margin-top: 8px;
+  color: #fff8e7;
+  font-size: clamp(1.2rem, 2vw, 1.7rem);
+  letter-spacing: -0.03em;
+}
+
+.feedbackGrid p,
+.emptyState p,
+.loadingState p {
+  margin: 8px 0 0;
+  color: rgba(255, 248, 231, 0.72);
+  line-height: 1.6;
+}
+
+.emptyState strong {
+  color: #fff8e7;
+}
+
+.loadingState {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.loadingState span {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #44d7c7;
+  box-shadow: 0 0 0 0 rgba(68, 215, 199, 0.55);
+  animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+  70% {
+    box-shadow: 0 0 0 12px rgba(68, 215, 199, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(68, 215, 199, 0);
+  }
+}

@@ -1,0 +1,599 @@
+.shell {
+  --panel-border: #293241;
+  --panel-border-soft: #d8dee8;
+  --panel-bg: rgba(255, 255, 255, 0.94);
+  --panel-bg-muted: #f5f7fb;
+  --ink: #172033;
+  --muted: #69758a;
+  --accent: #ff4869;
+  --accent-2: #ffb23e;
+  --danger: #e24b5f;
+  --shadow: 0 22px 54px rgba(23, 32, 51, 0.14);
+  --shadow-soft: 0 10px 24px rgba(23, 32, 51, 0.1);
+
+  display: grid;
+  grid-template-columns: 196px minmax(360px, 1fr) 196px;
+  grid-template-areas:
+    "stats video info"
+    "empty typing mode";
+  gap: 20px 14px;
+  width: min(100%, 930px);
+  margin: 0 auto;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 28px;
+  color: var(--ink);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(245, 247, 251, 0.88)),
+    rgba(255, 255, 255, 0.78);
+  box-shadow: var(--shadow);
+  font-family: "Pretendard", "Noto Sans KR", "Noto Sans JP", sans-serif;
+  backdrop-filter: blur(18px);
+}
+
+.statsPanel,
+.videoPanel,
+.infoPanel,
+.emptyPanel,
+.typingPanel,
+.modePanel {
+  position: relative;
+  min-width: 0;
+  border: 2px solid var(--panel-border);
+  border-radius: 18px;
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-soft);
+}
+
+.statsPanel {
+  grid-area: stats;
+  min-height: 254px;
+  padding: 70px 6px 16px;
+}
+
+.videoPanel {
+  grid-area: video;
+  min-height: 254px;
+  padding: 0;
+}
+
+.infoPanel {
+  grid-area: info;
+  min-height: 254px;
+  padding: 34px 20px 14px;
+}
+
+.emptyPanel {
+  grid-area: empty;
+  min-height: 250px;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(255, 72, 105, 0.1), transparent 26%),
+    radial-gradient(circle at 78% 82%, rgba(255, 178, 62, 0.12), transparent 28%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(245, 247, 251, 0.92));
+}
+
+.emptyPanel::after {
+  position: absolute;
+  inset: 14px;
+  border: 1px dashed rgba(105, 117, 138, 0.24);
+  border-radius: 14px;
+  content: "";
+  pointer-events: none;
+}
+
+.typingPanel {
+  grid-area: typing;
+  min-height: 250px;
+  padding: 12px;
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(11, 17, 32, 0.98));
+  border-color: #0f172a;
+}
+
+.modePanel {
+  grid-area: mode;
+  min-height: 250px;
+  padding: 18px 10px;
+}
+
+.panelLabel {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  min-height: 27px;
+  padding: 5px 13px 1px;
+  border: 2px solid var(--panel-border);
+  border-top: 0;
+  border-left: 0;
+  border-radius: 0 0 13px 0;
+  background: linear-gradient(135deg, #ffffff, #f5f7fb);
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 900;
+  line-height: 1.4;
+  letter-spacing: -0.03em;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 8px;
+}
+
+.statsGrid article {
+  display: grid;
+  grid-template-rows: 29px 48px;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--panel-border-soft);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(23, 32, 51, 0.07);
+}
+
+.statsGrid article:nth-child(odd) {
+  border-right-width: 1px;
+}
+
+.statsGrid article:nth-child(even) {
+  border-left-width: 1px;
+}
+
+.statsGrid span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--panel-border-soft);
+  color: var(--muted);
+  background: #f7f9fc;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.statsGrid strong {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+  font-size: 1.22rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.videoFrame {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  min-height: 254px;
+  border-radius: 15px;
+  background: #000000;
+  background-position: center;
+  background-size: cover;
+  transition: background 200ms ease;
+}
+
+.videoFrame::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background:
+    linear-gradient(180deg, rgba(18, 24, 38, 0.1), rgba(18, 24, 38, 0.32)),
+    rgba(255, 255, 255, 0.38);
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+
+.videoFrameActive {
+  background: #000000;
+}
+
+.videoFrameActive::after {
+  opacity: 0;
+}
+
+.playerHost,
+.playerHost iframe {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.playerHost iframe {
+  display: block;
+  border: 0;
+}
+
+.playOverlayButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 124px;
+  height: 124px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  transition: transform 160ms ease, background 160ms ease, opacity 160ms ease;
+}
+
+.playOverlayButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%) scale(1.04);
+}
+
+.playGlyph {
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 48px solid transparent;
+  border-bottom: 48px solid transparent;
+  border-left: 76px solid rgba(255, 255, 255, 0.92);
+  filter: drop-shadow(0 12px 24px rgba(23, 32, 51, 0.32));
+  transform: translateX(8px) scale(0.72);
+  pointer-events: none;
+}
+
+.infoDecor {
+  display: grid;
+  gap: 10px;
+  margin: 8px 0 12px;
+}
+
+.infoDecor span {
+  display: block;
+  height: 5px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--panel-border), rgba(41, 50, 65, 0.28));
+}
+
+.infoDecor span:nth-child(1) {
+  width: 86%;
+}
+
+.infoDecor span:nth-child(2) {
+  width: 96%;
+}
+
+.infoIdentity {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 62px;
+  margin-bottom: 8px;
+}
+
+.infoAvatar {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border: 2px solid rgba(41, 50, 65, 0.38);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 35% 28%, #ffffff, transparent 24%),
+    linear-gradient(135deg, #ffced7, #ff4869);
+  box-shadow: 0 8px 18px rgba(255, 72, 105, 0.24);
+}
+
+.infoIdentity h2 {
+  margin: 0 0 4px;
+  color: var(--ink);
+  font-size: 0.98rem;
+  line-height: 1.2;
+}
+
+.infoIdentity p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.infoMeta {
+  display: grid;
+  gap: 7px;
+  margin-top: 6px;
+}
+
+.infoMeta strong,
+.infoMeta span {
+  color: #111111;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.tagRow {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.tagRow span {
+  width: 28px;
+  height: 13px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 5px 12px rgba(255, 72, 105, 0.24);
+  color: transparent;
+  font-size: 0;
+}
+
+.lyricStack {
+  display: grid;
+  gap: 10px;
+}
+
+.currentLyricCard {
+  position: relative;
+  overflow: hidden;
+  padding: 22px 20px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  background: transparent;
+  cursor: text;
+  user-select: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.currentLyricCard > .romajiLine,
+.currentLyricCard > .japaneseLine,
+.currentLyricCard > .imePreview,
+.currentLyricCard > .progressTrack {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.currentLyricCardFocused {
+  border-color: rgba(96, 165, 250, 0.45);
+  box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.32);
+}
+
+.queueLyricCard {
+  overflow: hidden;
+  min-height: 47px;
+  padding: 11px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  opacity: 0.82;
+}
+
+/* monkeytype 스타일 메인 로마자 라인: 입력 위치를 글자 색으로 시각화 */
+.romajiLine {
+  min-height: 1.4em;
+  margin-bottom: 8px;
+  color: #f8fafc;
+  font-size: 1.55rem;
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.romajiPlaceholder {
+  color: rgba(148, 163, 184, 0.65);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* 일본어 가나 라인: 보조 정보로 작고 흐리게 */
+.japaneseLine {
+  min-height: 1.35em;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
+}
+
+.japanesePlaceholder {
+  color: rgba(148, 163, 184, 0.5);
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.queueLyricCard .queueLyricText {
+  color: rgba(148, 163, 184, 0.78);
+  font-size: 1rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.25;
+}
+
+.queueLyricCard .queueGuideText {
+  color: rgba(148, 163, 184, 0.55);
+  font-size: 0.92rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.25;
+}
+
+/* 진행도(완료된 일본어 글자) - 보조 라인이므로 옅은 강조 */
+.completedChar {
+  color: #cbd5f5;
+}
+
+.activeChar {
+  color: #ffffff;
+  background: rgba(96, 165, 250, 0.22);
+  border-radius: 4px;
+}
+
+.pendingChar {
+  color: inherit;
+}
+
+/* 로마자 라인 색상 규칙 (monkeytype 스타일) */
+.romajiLine .typedCorrectChar {
+  color: #60a5fa;
+}
+
+.romajiLine .typedIncorrectChar {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.22);
+  border-radius: 3px;
+}
+
+.romajiLine .pendingChar {
+  color: #f8fafc;
+}
+
+/* 큐(다음) 가사 - 회색 정도만 약간 다르게 */
+.queueLyricCard .typedCorrectChar,
+.queueLyricCard .pendingChar {
+  color: rgba(148, 163, 184, 0.78);
+}
+
+/* IME(한글) 조합 중인 임시 문자를 작은 보조 라인으로 표시 */
+.imePreview {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 6px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(96, 165, 250, 0.12);
+  color: #93c5fd;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.imePreview .typedCorrectChar,
+.imePreview .typedIncorrectChar {
+  color: #ffffff;
+}
+
+.inputLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* 실제 input을 카드 영역 전체에 투명하게 겹쳐 키 입력이 항상 input으로 들어가게 한다.
+   사용자에게는 로마자 가사 자체가 입력란처럼 보이지만(monkeytype 스타일),
+   카드 안 어디를 클릭해도 곧장 input에 포커스가 잡혀 첫 글자부터 정상 입력된다. */
+.hiddenInput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: transparent;
+  caret-color: transparent;
+  font: inherit;
+  cursor: text;
+  z-index: 2;
+}
+
+.hiddenInput::selection {
+  background: rgba(96, 165, 250, 0.3);
+}
+
+.progressTrack {
+  overflow: hidden;
+  height: 6px;
+  margin-top: 12px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.18);
+}
+
+.progressFill {
+  width: var(--typing-progress, 0%);
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 120ms ease-out;
+}
+
+.modeTitle {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font-size: 1.55rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+.modeDivider {
+  height: 4px;
+  margin: 0 0 14px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--panel-border), rgba(41, 50, 65, 0.24));
+}
+
+.modeMeta {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.errorText {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  z-index: 3;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #b91c1c;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+@media (max-width: 960px) {
+  .shell {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "stats"
+      "video"
+      "info"
+      "typing"
+      "mode"
+      "empty";
+    width: min(100%, 560px);
+    padding: 16px;
+  }
+
+  .statsPanel,
+  .videoPanel,
+  .infoPanel,
+  .emptyPanel,
+  .typingPanel,
+  .modePanel {
+    min-height: auto;
+  }
+
+  .emptyPanel {
+    min-height: 120px;
+  }
+}

@@ -1,0 +1,7 @@
+# 사용자가 직접 추가하는 LRC 파일은 저작권 문제로 기본적으로 추적하지 않습니다.
+*.lrc
+
+# README와 자체 작성 샘플은 추적합니다.
+!example.lrc
+!README.md
+!.gitignore

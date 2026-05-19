@@ -1,0 +1,243 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ContentCategory {
+  JPOP
+  ANIME
+  VOCALOID
+  GAME
+  DRAMA
+  CUSTOM
+}
+
+enum GameMode {
+  LISTEN_AND_TYPE_LYRICS
+  LISTEN_AND_GUESS
+}
+
+enum InputMode {
+  ROMAJI
+  KOREAN_PRONUNCIATION
+}
+
+enum RewardKind {
+  BADGE
+  TITLE
+}
+
+enum RewardMetric {
+  TOTAL_PLAYTIME_MS
+  LOGIN_STREAK
+  ACCURACY_STREAK
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+
+  passwordHash String
+  displayName  String?
+  avatarUrl    String?
+  isPremium    Boolean @default(false)
+
+  totalPlaytimeMs     Int @default(0)
+  consecutiveLoginDays Int @default(0)
+  lastLoginAt          DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  gameSessions GameSession[]
+  typoLogs     TypoLog[]
+  rewards      UserReward[]
+  createdContents Content[]
+  notices      Notice[]
+
+  @@index([email])
+  @@index([username])
+}
+
+model Content {
+  id        String @id @default(cuid())
+
+  creatorId String?
+  creator   User? @relation(fields: [creatorId], references: [id], onDelete: SetNull)
+
+  youtubeVideoId String
+  title          String
+  artist         String?
+  category       ContentCategory
+
+  thumbnailUrl String?
+  durationMs   Int?
+  syncOffsetMs Int     @default(0)
+  difficulty   Int     @default(1)
+  isPublished  Boolean @default(false)
+  isUgc        Boolean @default(true)
+  playCount    Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lyricSyncs   LyricSync[]
+  gameSessions GameSession[]
+
+  @@index([creatorId])
+  @@index([youtubeVideoId])
+  @@index([category])
+  @@index([isPublished, isUgc])
+  @@index([playCount])
+  @@index([createdAt])
+  @@index([title])
+}
+
+model LyricSync {
+  id        String @id @default(cuid())
+  contentId String
+  content   Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  lineIndex Int
+  startMs   Int
+  endMs     Int?
+
+  japaneseText            String @db.Text
+  romajiText              String @db.Text
+  koreanPronunciationText String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  typoLogs TypoLog[]
+
+  @@unique([contentId, lineIndex])
+  @@index([contentId, startMs])
+}
+
+model GameSession {
+  id        String @id @default(cuid())
+
+  userId    String
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  contentId String
+  content   Content @relation(fields: [contentId], references: [id], onDelete: Restrict)
+
+  gameMode  GameMode
+  inputMode InputMode
+
+  score      Int   @default(0)
+  accuracy   Float @default(0)
+
+  strokesPerMinute Float @default(0)
+  wordsPerMinute   Float @default(0)
+
+  totalStrokes     Int @default(0)
+  correctStrokes   Int @default(0)
+  incorrectStrokes Int @default(0)
+
+  playtimeMs Int @default(0)
+
+  startedAt DateTime @default(now())
+  endedAt   DateTime?
+  createdAt DateTime @default(now())
+
+  typoLogs TypoLog[]
+
+  @@index([userId, startedAt])
+  @@index([contentId])
+}
+
+model TypoLog {
+  id String @id @default(cuid())
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  gameSessionId String
+  gameSession   GameSession @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
+
+  lyricSyncId String?
+  lyricSync   LyricSync? @relation(fields: [lyricSyncId], references: [id], onDelete: SetNull)
+
+  targetCharacter String
+  inputtedCharacter String
+
+  targetTextPosition Int?
+  videoTimestampMs   Int?
+  sessionTimestampMs Int
+
+  contextualPreviousWord String?
+  contextualNextWord     String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([gameSessionId])
+  @@index([lyricSyncId])
+  @@index([targetCharacter])
+}
+
+model Reward {
+  id          String @id @default(cuid())
+  slug        String @unique
+  name        String
+  description String?
+
+  kind      RewardKind
+  metric    RewardMetric
+  threshold Int
+  icon      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users UserReward[]
+
+  @@index([kind])
+  @@index([metric])
+}
+
+model UserReward {
+  id String @id @default(cuid())
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  rewardId String
+  reward   Reward @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+
+  triggerValue Int?
+  unlockedAt   DateTime @default(now())
+
+  @@unique([userId, rewardId])
+  @@index([userId, unlockedAt])
+}
+
+model Notice {
+  id String @id @default(cuid())
+
+  authorId String?
+  author   User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  title      String
+  body       String  @db.Text
+  authorName String  @default("Enterping Admin")
+
+  isPinned    Boolean  @default(false)
+  isPublished Boolean  @default(true)
+  publishedAt DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([authorId])
+  @@index([isPublished, isPinned, publishedAt])
+  @@index([createdAt])
+}

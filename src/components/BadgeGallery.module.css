@@ -1,0 +1,141 @@
+.gallery {
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 28px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05)),
+    rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(20px);
+}
+
+.header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.header h3 {
+  margin: 8px 0 0;
+  color: #fff8e7;
+  font-size: clamp(1.6rem, 3vw, 2.8rem);
+  letter-spacing: -0.05em;
+  line-height: 0.95;
+}
+
+.header p {
+  margin: 0;
+  color: rgba(255, 248, 231, 0.66);
+  font-weight: 800;
+}
+
+.eyebrow {
+  display: inline-flex;
+  width: fit-content;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 207, 122, 0.32);
+  border-radius: 999px;
+  color: #ffcf7a;
+  background: rgba(255, 207, 122, 0.11);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.rewardGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.rewardCard {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(255, 207, 122, 0.16), transparent 38%),
+    rgba(0, 0, 0, 0.22);
+}
+
+.badgeIcon,
+.titleIcon {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  border-radius: 18px;
+  color: #10130f;
+  font-weight: 950;
+  letter-spacing: -0.06em;
+}
+
+.badgeIcon {
+  background: linear-gradient(135deg, #ffcf7a, #f87171);
+}
+
+.titleIcon {
+  background: linear-gradient(135deg, #44d7c7, #ffcf7a);
+}
+
+.rewardCard span {
+  color: rgba(255, 248, 231, 0.54);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.rewardCard h4 {
+  margin: 4px 0;
+  color: #fff8e7;
+  font-size: 1.06rem;
+}
+
+.rewardCard p,
+.rewardCard small,
+.emptyState p {
+  margin: 0;
+  color: rgba(255, 248, 231, 0.66);
+}
+
+.rewardCard small {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.75rem;
+}
+
+.emptyState {
+  padding: 24px;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: 22px;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.emptyState strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #fff8e7;
+}
+
+@media (max-width: 1180px) {
+  .rewardGrid {
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .header {
+    display: grid;
+  }
+
+  .rewardGrid {
+    grid-template-columns: 1fr;
+  }
+}

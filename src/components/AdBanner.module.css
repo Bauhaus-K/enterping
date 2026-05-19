@@ -1,0 +1,29 @@
+.banner {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border: 1px dashed rgba(255, 207, 122, 0.36);
+  border-radius: 22px;
+  color: #fff8e7;
+  background:
+    linear-gradient(135deg, rgba(255, 207, 122, 0.12), rgba(68, 215, 199, 0.08)),
+    rgba(0, 0, 0, 0.22);
+}
+
+.banner span {
+  color: #ffcf7a;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.banner strong {
+  font-size: 1.05rem;
+}
+
+.banner p {
+  margin: 0;
+  color: rgba(255, 248, 231, 0.62);
+  font-size: 0.86rem;
+}
