@@ -24,11 +24,11 @@ export default function HomePage() {
           <div className={styles.badge}>JPOP · Anime · Typing Practice</div>
           <h1 id="home-title">
             좋아하는 일본 콘텐츠로
-            <span>타이핑 감각을 깨우세요</span>
+            <span>타이핑 감각을 키우세요</span>
           </h1>
           <p>
             JPOP과 애니메이션 음악을 들으며 히라가나와 로마자를 따라 입력해보세요.
-            노래의 리듬을 타다 보면 일본어 발음과 문장 흐름이 자연스럽게 손끝에 익습니다.
+            노래의 리듬에 맞춰 연습하다 보면 일본어 발음과 문장 흐름이 자연스럽게 익숙해집니다.
           </p>
 
           <div className={styles.ctaRow}>

@@ -29,7 +29,7 @@ export async function SiteHeader() {
       <div className={styles.actions}>
         <form className={styles.search} action="/search" role="search">
           <button className={styles.searchIcon} type="submit" aria-label="검색">
-            ⌕
+            🔍
           </button>
           <input name="q" type="search" placeholder="곡명, 아티스트 검색" />
           <kbd>Enter</kbd>

@@ -24,7 +24,7 @@ export async function signupAction(
   const passwordConfirm = String(formData.get("passwordConfirm") ?? "");
 
   if (!isValidUsername(username)) {
-    return { message: "아이디는 영문 소문자, 숫자, 밑줄만 사용해 3~24자로 입력해 주세요." };
+    return { message: "아이디는 영문 소문자, 숫자, 밑줄만 사용해 3~24자로 입력해주세요." };
   }
 
   if (password.length < 8) {
@@ -57,7 +57,7 @@ export async function signupAction(
     }
 
     console.error("[Enterping][Auth] Signup failed", error);
-    return { message: "회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요." };
+    return { message: "회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요." };
   }
 
   redirect("/typing");
@@ -71,7 +71,7 @@ export async function loginAction(
   const password = String(formData.get("password") ?? "");
 
   if (!username || !password) {
-    return { message: "아이디와 비밀번호를 입력해 주세요." };
+    return { message: "아이디와 비밀번호를 입력해주세요." };
   }
 
   const user = await prisma.user.findUnique({

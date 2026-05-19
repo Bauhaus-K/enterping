@@ -34,7 +34,7 @@ export default async function TypingPage() {
         <h1>연습할 곡을 선택해주세요</h1>
         <p>
           좋아하는 JPOP과 애니메이션 곡을 고르고, 히라가나와 로마자를 따라 입력하며
-          자연스럽게 일본어 리듬과 발음을 익혀보세요.
+          일본어 리듬과 발음을 자연스럽게 익혀보세요.
         </p>
       </section>
 
@@ -52,7 +52,7 @@ export default async function TypingPage() {
               <dl>
                 <div>
                   <dt>{stage.playCount.toLocaleString()}</dt>
-                  <dd>플레이 수</dd>
+                  <dd>플레이</dd>
                 </div>
                 <div>
                   <dt>{stage.lineCount}</dt>

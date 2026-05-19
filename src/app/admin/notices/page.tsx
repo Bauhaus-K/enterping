@@ -33,7 +33,7 @@ export default async function AdminNoticesPage() {
       <section className={styles.hero}>
         <span>ADMIN NOTICE</span>
         <h1>공지사항 관리</h1>
-        <p>관리자는 이 페이지에서 사용자에게 공개할 공지사항을 작성하고 게시 상태를 확인할 수 있습니다.</p>
+        <p>관리자 전용 페이지에서 사용자에게 공개할 공지사항을 작성하고 게시 상태를 확인할 수 있습니다.</p>
         <Link href="/notices">사용자 공지 화면 보기</Link>
       </section>
 
@@ -112,7 +112,7 @@ export default async function AdminNoticesPage() {
           ) : (
             <article className={styles.emptyNotice}>
               <h3>등록된 공지가 없습니다</h3>
-              <p>왼쪽 작성 폼에서 첫 공지를 등록해 주세요.</p>
+              <p>왼쪽 작성 영역에서 첫 공지를 등록해주세요.</p>
             </article>
           )}
         </section>

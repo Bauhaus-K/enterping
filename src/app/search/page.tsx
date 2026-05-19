@@ -16,10 +16,10 @@ interface SearchResult {
 }
 
 const SONG_ALIASES: Record<string, string[]> = {
-  "jpop-lemon": ["lemon", "レモン", "れもん", "레몬", "米津玄師", "요네즈 켄시"],
-  "jpop-pretender": ["pretender", "プリテンダー", "프리텐더", "official髭男dism", "higedan", "히게단"],
-  "jpop-gunjo": ["walking with you", "walking", "novelbright", "워킹 위드 유", "ウォーキングウィズユー"],
-  "jpop-gurenge": ["ひと夏の君へ", "ひとなつのきみへ", "hitonatsu no kimi e", "absolute area", "한여름의 너에게"],
+  "jpop-lemon": ["lemon", "레몬", "米津玄師", "요네즈 켄시", "kenshi yonezu"],
+  "jpop-pretender": ["pretender", "프리텐더", "official hige dandism", "higedan", "히게단"],
+  "jpop-gunjo": ["walking with you", "walking", "novelbright", "노벨브라이트"],
+  "jpop-gurenge": ["ひと夏の君へ", "hitonatsu no kimi e", "absolute area", "한여름의 너에게"],
 };
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
@@ -35,7 +35,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <p>
           {query
             ? `"${query}"에 대한 타이핑 곡 검색 결과입니다.`
-            : "상단 검색창에서 곡명이나 아티스트를 입력해 보세요."}
+            : "상단 검색창에서 곡명이나 아티스트를 입력해보세요."}
         </p>
       </section>
 
@@ -81,7 +81,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         ) : (
           <article className={styles.emptyState}>
             <h3>검색 결과가 없습니다</h3>
-            <p>예: Lemon, 레몬, YOASOBI, 紅蓮華, Pretender처럼 입력해 보세요.</p>
+            <p>예: Lemon, 레몬, YOASOBI, Pretender처럼 입력해보세요.</p>
             <Link href="/typing">연습곡 목록으로 이동</Link>
           </article>
         )}

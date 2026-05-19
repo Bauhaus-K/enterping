@@ -171,7 +171,7 @@ function QuizForm({
         허용 답안
         <input
           name="acceptedAnswers"
-          placeholder="Lemon, レモン, 레몬"
+          placeholder="Lemon, 레몬, 米津玄師"
           required
           defaultValue={question?.acceptedAnswers ?? ""}
         />

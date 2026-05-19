@@ -36,7 +36,7 @@ export default async function NoticesPage() {
       <section className={styles.hero}>
         <span>ENTERPING NEWS</span>
         <h1>공지사항</h1>
-        <p>서비스 업데이트, 신규 JPOP/애니 콘텐츠, 점검 및 이벤트 소식을 확인하세요.</p>
+        <p>서비스 업데이트, 신규 JPOP/애니 콘텐츠 추가 및 이벤트 소식을 확인하세요.</p>
         {canOpenAdmin ? (
           <Link className={styles.adminLink} href="/admin/notices">
             관리자 페이지로 이동

@@ -21,17 +21,17 @@ function formatTime(milliseconds: number): string {
 function getPlayerStateLabel(state: number): string {
   switch (state) {
     case PLAYER_STATE.PLAYING:
-      return "Playing";
+      return "재생 중";
     case PLAYER_STATE.PAUSED:
-      return "Paused";
+      return "일시정지";
     case PLAYER_STATE.BUFFERING:
-      return "Buffering";
+      return "버퍼링";
     case PLAYER_STATE.ENDED:
-      return "Ended";
+      return "종료";
     case PLAYER_STATE.CUED:
-      return "Ready";
+      return "준비 완료";
     default:
-      return "Idle";
+      return "대기 중";
   }
 }
 
@@ -39,10 +39,10 @@ export function InfoPanel({ content, inputMode }: InfoPanelProps) {
   const { isPlayerReady, playerState, currentTimestampMs } = useGameStore();
   const statusLabel =
     !isPlayerReady && playerState === PLAYER_STATE.PLAYING
-      ? "LRC Practice"
+      ? "LRC 연습"
       : isPlayerReady
         ? getPlayerStateLabel(playerState)
-        : "Loading";
+        : "불러오는 중";
 
   return (
     <aside className={styles.infoPanel} aria-label="Video information">

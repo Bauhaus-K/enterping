@@ -27,7 +27,7 @@ export default function QuizPage() {
       <section className={styles.hero}>
         <span>QUIZ MODE</span>
         <h1>어떤 퀴즈로 시작할까요?</h1>
-        <p>JPOP과 애니메이션 중 하나를 고르고, 대전형 퀴즈 화면에서 빠르게 정답을 입력해 보세요.</p>
+        <p>JPOP과 애니메이션 중 하나를 고르고, 대전형 퀴즈 화면에서 빠르게 정답을 입력해보세요.</p>
       </section>
 
       <section className={styles.categoryGrid} aria-label="Quiz category selection">
