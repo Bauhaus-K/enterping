@@ -5,7 +5,7 @@ import styles from "./page.module.css";
 const featuredSongs = [
   { title: "Lemon", artist: "Kenshi Yonezu", level: "Lv.2", progress: 72 },
   { title: "Pretender", artist: "Official Hige Dandism", level: "Lv.3", progress: 54 },
-  { title: "Gurenge", artist: "LiSA", level: "Lv.3", progress: 64 },
+  { title: "ひと夏の君へ", artist: "Absolute area", level: "Lv.3", progress: 64 },
 ];
 
 const metrics = [
