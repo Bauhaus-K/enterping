@@ -372,7 +372,7 @@
 .catalogHeader {
   display: grid;
   gap: 12px;
-  max-width: 720px;
+  max-width: 100%;
   margin-bottom: 28px;
 }
 
@@ -392,13 +392,15 @@
 .catalogHeader h2 {
   margin: 0;
   color: #ffffff;
-  font-size: clamp(2.25rem, 5vw, 4.6rem);
+  font-size: clamp(2rem, 4vw, 3.35rem);
   font-weight: 1000;
   letter-spacing: -0.065em;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .catalogHeader p {
+  max-width: 720px;
   margin: 0;
   color: #aeb9ca;
   font-size: 1rem;
@@ -599,6 +601,10 @@
 
   .catalogHeader {
     text-align: left;
+  }
+
+  .catalogHeader h2 {
+    font-size: clamp(1.6rem, 7vw, 2rem);
   }
 
   .songGrid {
