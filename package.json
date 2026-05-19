@@ -8,6 +8,7 @@
     "start": "next start",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "prisma db seed",
+    "db:seed:jpop": "tsx scripts/seed-jpop-library.ts",
     "prisma:generate": "prisma generate",
     "test": "jest",
     "test:watch": "jest --watch"

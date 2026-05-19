@@ -73,6 +73,7 @@ Commit the generated `prisma/migrations` folder.
 Set these in Vercel Project Settings > Environment Variables:
 
 - `DATABASE_URL`
+- `DIRECT_URL`
 - `AUTH_SECRET`
 - `ADMIN_USERNAMES`
 - `ADMIN_EMAILS`

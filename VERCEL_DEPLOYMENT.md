@@ -23,6 +23,13 @@ Use SSL if the provider requires it:
 postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require
 ```
 
+For Neon, copy both connection strings:
+
+```text
+DATABASE_URL = pooled connection string, usually contains "-pooler"
+DIRECT_URL = direct connection string, usually does not contain "-pooler"
+```
+
 ## 2. Add Vercel Environment Variables
 
 In Vercel:
@@ -34,7 +41,8 @@ Project Settings > Environment Variables
 Add:
 
 ```text
-DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require
+DATABASE_URL=postgresql://USER:PASSWORD@HOST-pooler.REGION.aws.neon.tech/DATABASE?sslmode=require
+DIRECT_URL=postgresql://USER:PASSWORD@HOST.REGION.aws.neon.tech/DATABASE?sslmode=require
 AUTH_SECRET=<long-random-secret>
 ADMIN_USERNAMES=mailron
 ADMIN_EMAILS=
@@ -60,14 +68,16 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
 Run this from the project folder after replacing the URL:
 
 ```powershell
-$env:DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require"
+$env:DATABASE_URL="postgresql://USER:PASSWORD@HOST-pooler.REGION.aws.neon.tech/DATABASE?sslmode=require"
+$env:DIRECT_URL="postgresql://USER:PASSWORD@HOST.REGION.aws.neon.tech/DATABASE?sslmode=require"
 npx.cmd prisma migrate deploy
 ```
 
 Optional production seed:
 
 ```powershell
-$env:DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require"
+$env:DATABASE_URL="postgresql://USER:PASSWORD@HOST-pooler.REGION.aws.neon.tech/DATABASE?sslmode=require"
+$env:DIRECT_URL="postgresql://USER:PASSWORD@HOST.REGION.aws.neon.tech/DATABASE?sslmode=require"
 npm.cmd run db:seed
 ```
 
