@@ -85,6 +85,28 @@ export const JPOP_SONGS: JpopSong[] = [
     playCount: 1180,
     syncOffsetMs: 0,
   },
+  {
+    id: "jpop-iris-out",
+    youtubeVideoId: "LmZD-TU96q4",
+    title: "IRIS OUT",
+    artist: "Kenshi Yonezu",
+    thumbnailUrl: "https://i.ytimg.com/vi/LmZD-TU96q4/hqdefault.jpg",
+    category: "JPOP",
+    difficulty: 4,
+    playCount: 1360,
+    syncOffsetMs: 0,
+  },
+  {
+    id: "jpop-blue-jeans",
+    youtubeVideoId: "r_AOa3yVz8A",
+    title: "Blue Jeans",
+    artist: "HANA",
+    thumbnailUrl: "https://i.ytimg.com/vi/r_AOa3yVz8A/hqdefault.jpg",
+    category: "JPOP",
+    difficulty: 3,
+    playCount: 1040,
+    syncOffsetMs: 0,
+  },
 ];
 
 export function getJpopSongById(id: string): JpopSong | undefined {

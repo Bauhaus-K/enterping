@@ -22,6 +22,8 @@ const SONG_ALIASES: Record<string, string[]> = {
   "jpop-gurenge": ["ひと夏の君へ", "hitonatsu no kimi e", "absolute area", "한여름의 너에게"],
   "jpop-sakura-mitai-na-koi-nanda": ["桜みたいな恋なんだ", "sakura mitai na koi nanda", "miwa", "사쿠라"],
   "jpop-kaze-to-machi": ["風と町", "kaze to machi", "mrs green apple", "mrs. green apple", "미세스 그린 애플"],
+  "jpop-iris-out": ["iris out", "아이리스 아웃", "米津玄師", "kenshi yonezu", "요네즈 켄시"],
+  "jpop-blue-jeans": ["blue jeans", "블루진", "hana"],
 };
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
