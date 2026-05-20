@@ -10,6 +10,7 @@
     "db:seed": "prisma db seed",
     "db:seed:jpop": "tsx scripts/seed-jpop-library.ts",
     "db:seed:quiz": "tsx scripts/seed-quiz-library.ts",
+    "db:import:youtube-caption": "tsx scripts/import-youtube-caption-song.ts",
     "prisma:generate": "prisma generate",
     "test": "jest",
     "test:watch": "jest --watch"

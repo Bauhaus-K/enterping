@@ -20,6 +20,8 @@ const SONG_ALIASES: Record<string, string[]> = {
   "jpop-pretender": ["pretender", "프리텐더", "official hige dandism", "higedan", "히게단"],
   "jpop-gunjo": ["walking with you", "walking", "novelbright", "노벨브라이트"],
   "jpop-gurenge": ["ひと夏の君へ", "hitonatsu no kimi e", "absolute area", "한여름의 너에게"],
+  "jpop-sakura-mitai-na-koi-nanda": ["桜みたいな恋なんだ", "sakura mitai na koi nanda", "miwa", "사쿠라"],
+  "jpop-kaze-to-machi": ["風と町", "kaze to machi", "mrs green apple", "mrs. green apple", "미세스 그린 애플"],
 };
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {

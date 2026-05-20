@@ -63,6 +63,28 @@ export const JPOP_SONGS: JpopSong[] = [
     playCount: 1980,
     syncOffsetMs: 0,
   },
+  {
+    id: "jpop-sakura-mitai-na-koi-nanda",
+    youtubeVideoId: "L2XFosxgzuU",
+    title: "桜みたいな恋なんだ",
+    artist: "miwa",
+    thumbnailUrl: "https://i.ytimg.com/vi/L2XFosxgzuU/hqdefault.jpg",
+    category: "JPOP",
+    difficulty: 3,
+    playCount: 920,
+    syncOffsetMs: 0,
+  },
+  {
+    id: "jpop-kaze-to-machi",
+    youtubeVideoId: "9NJI7cLZ2Qg",
+    title: "風と町",
+    artist: "Mrs. GREEN APPLE",
+    thumbnailUrl: "https://i.ytimg.com/vi/9NJI7cLZ2Qg/hqdefault.jpg",
+    category: "JPOP",
+    difficulty: 4,
+    playCount: 1180,
+    syncOffsetMs: 0,
+  },
 ];
 
 export function getJpopSongById(id: string): JpopSong | undefined {
