@@ -32,6 +32,9 @@ export default function HomePage() {
           </p>
 
           <div className={styles.ctaRow}>
+            <Link className={styles.primaryCta} href="/tutorial">
+              3분 튜토리얼 시작
+            </Link>
             <Link className={styles.primaryCta} href="#jpop-library">
               곡 선택하러 내려가기
             </Link>

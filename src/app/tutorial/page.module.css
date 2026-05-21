@@ -1,0 +1,420 @@
+.page {
+  min-height: 100vh;
+  color: #f8fafc;
+  background:
+    radial-gradient(circle at 12% 14%, rgba(255, 73, 107, 0.28), transparent 28%),
+    radial-gradient(circle at 86% 18%, rgba(76, 211, 194, 0.18), transparent 24%),
+    linear-gradient(#151c29 1px, transparent 1px),
+    linear-gradient(90deg, #151c29 1px, transparent 1px),
+    #101725;
+  background-size: auto, auto, 35px 35px, 35px 35px, auto;
+  font-family: "Pretendard", "Noto Sans KR", "Noto Sans JP", sans-serif;
+}
+
+.hero {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  width: min(1120px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 64px 0 30px;
+}
+
+.hero span,
+.practiceHeader span,
+.summaryCard span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 112, 139, 0.42);
+  border-radius: 999px;
+  color: #ffa0b1;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.74rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+}
+
+.hero h1 {
+  max-width: 760px;
+  margin: 18px 0 12px;
+  color: #ffffff;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 1000;
+  letter-spacing: -0.07em;
+  line-height: 0.98;
+}
+
+.hero p {
+  max-width: 720px;
+  margin: 0;
+  color: #c7d0df;
+  font-size: 1.02rem;
+  font-weight: 680;
+  line-height: 1.75;
+  word-break: keep-all;
+}
+
+.hero a,
+.summaryCard a {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 999px;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+  font-weight: 950;
+  text-decoration: none;
+}
+
+.trainer {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr) 280px;
+  gap: 18px;
+  width: min(1120px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 0 0 86px;
+}
+
+.stepRail,
+.practiceCard,
+.summaryCard {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 28px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05)),
+    rgba(15, 23, 42, 0.72);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(18px);
+}
+
+.stepRail {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 16px;
+}
+
+.stepPill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.07);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-align: left;
+}
+
+.stepPill span {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  color: #111827;
+  background: #cbd5e1;
+  font-size: 0.82rem;
+}
+
+.stepPillActive {
+  border-color: rgba(255, 112, 139, 0.42);
+  color: #ffffff;
+  background: rgba(255, 73, 107, 0.16);
+}
+
+.stepPillDone span {
+  background: linear-gradient(135deg, #7df0dd, #ffcf7a);
+}
+
+.practiceCard {
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+}
+
+.practiceHeader {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.practiceHeader h2,
+.summaryCard h2 {
+  margin: 10px 0 0;
+  color: #ffffff;
+  font-size: 1.75rem;
+  font-weight: 1000;
+  letter-spacing: -0.05em;
+}
+
+.practiceHeader strong {
+  color: #7df0dd;
+  font-size: 1rem;
+  font-weight: 1000;
+}
+
+.guideText {
+  margin: 0;
+  color: #c7d0df;
+  font-size: 0.98rem;
+  font-weight: 720;
+  line-height: 1.65;
+}
+
+.targetBox {
+  display: grid;
+  gap: 12px;
+  padding: 22px;
+  border-radius: 24px;
+  background: #f8fafc;
+  color: #111827;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+.kanaLine {
+  min-height: 1.35em;
+  color: #111827;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 1000;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+}
+
+.kanaLine span,
+.romajiLine span {
+  transition: color 140ms ease, background 140ms ease;
+}
+
+.completedKana {
+  color: #ff496b;
+}
+
+.activeKana {
+  color: #111827;
+  background: #ffe3aa;
+  border-radius: 8px;
+}
+
+.romajiLine {
+  min-height: 1.35em;
+  color: #111827;
+  font-size: clamp(1.22rem, 3vw, 1.65rem);
+  font-weight: 900;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.correctRomaji {
+  color: #2563eb;
+}
+
+.incorrectRomaji {
+  color: #dc2626;
+  background: #fee2e2;
+  border-radius: 5px;
+}
+
+.pendingRomaji {
+  color: #111827;
+}
+
+.tutorialInput {
+  width: 100%;
+  min-height: 54px;
+  border: 1px solid #cfd6e3;
+  border-radius: 16px;
+  outline: none;
+  padding: 0 16px;
+  color: #111827;
+  background: #ffffff;
+  font: inherit;
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+.tutorialInput:focus {
+  border-color: #ff496b;
+  box-shadow: 0 0 0 4px rgba(255, 73, 107, 0.16);
+}
+
+.progressTrack {
+  overflow: hidden;
+  height: 8px;
+  border-radius: 999px;
+  background: #e5eaf2;
+}
+
+.progressTrack span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff496b, #ffcf7a, #44d7c7);
+  transition: width 140ms ease;
+}
+
+.statusBox {
+  padding: 15px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.statusBox strong {
+  display: block;
+  color: #ffffff;
+  font-size: 0.98rem;
+  font-weight: 1000;
+}
+
+.statusBox p {
+  margin: 6px 0 0;
+  color: #aeb8c8;
+  font-size: 0.9rem;
+  font-weight: 720;
+  line-height: 1.55;
+}
+
+.statusCorrect {
+  border-color: rgba(68, 215, 199, 0.32);
+  background: rgba(68, 215, 199, 0.12);
+}
+
+.statusError {
+  border-color: rgba(255, 73, 107, 0.34);
+  background: rgba(255, 73, 107, 0.12);
+}
+
+.actionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.actionRow button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 950;
+}
+
+.actionRow button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.actionRow .primaryButton {
+  margin-left: auto;
+  background: linear-gradient(135deg, #ff4167, #ff7a90);
+  box-shadow: 0 14px 24px rgba(255, 65, 103, 0.22);
+}
+
+.summaryCard {
+  align-self: start;
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+}
+
+.summaryCard p {
+  margin: 0;
+  color: #c7d0df;
+  font-size: 0.93rem;
+  font-weight: 720;
+  line-height: 1.65;
+}
+
+.summaryCard a {
+  width: 100%;
+  background: linear-gradient(135deg, #44d7c7, #ff496b);
+}
+
+@media (max-width: 980px) {
+  .hero,
+  .trainer {
+    width: min(100% - 32px, 1120px);
+  }
+
+  .hero {
+    display: grid;
+    align-items: start;
+  }
+
+  .trainer {
+    grid-template-columns: 1fr;
+  }
+
+  .stepRail {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .hero,
+  .trainer {
+    width: min(100% - 28px, 1120px);
+  }
+
+  .hero {
+    padding: 42px 0 24px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.15rem, 11vw, 3rem);
+  }
+
+  .hero a,
+  .summaryCard a {
+    width: 100%;
+  }
+
+  .stepRail {
+    grid-template-columns: 1fr 1fr;
+    padding: 12px;
+    border-radius: 22px;
+  }
+
+  .stepPill {
+    min-height: 44px;
+    padding: 0 10px;
+  }
+
+  .practiceCard,
+  .summaryCard {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .practiceHeader,
+  .actionRow {
+    display: grid;
+  }
+
+  .targetBox {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .actionRow .primaryButton {
+    margin-left: 0;
+  }
+}

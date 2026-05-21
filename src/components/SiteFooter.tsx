@@ -24,6 +24,7 @@ export function SiteFooter() {
         <nav className={styles.navGrid} aria-label="Footer navigation">
           <div>
             <h2>Play</h2>
+            <Link href="/tutorial">튜토리얼</Link>
             <Link href="/typing">타이핑</Link>
             <Link href="/quiz">퀴즈</Link>
             <Link href="/ranking">랭킹</Link>

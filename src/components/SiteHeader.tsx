@@ -19,6 +19,7 @@ export async function SiteHeader() {
       </Link>
 
       <nav className={styles.nav} aria-label="Primary navigation">
+        <Link href="/tutorial">튜토리얼</Link>
         <Link href="/typing">타이핑</Link>
         <Link href="/quiz">퀴즈</Link>
         <Link href="/ranking">랭킹</Link>
