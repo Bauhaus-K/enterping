@@ -34,6 +34,20 @@ interface AdminTypingContentViewModel {
   updatedAt: string;
 }
 
+interface AdminLyricLineViewModel {
+  id: string;
+  lineIndex: number;
+  startMs: number;
+  endMs: number;
+  japaneseText: string;
+  romajiText: string;
+  koreanPronunciationText: string;
+}
+
+interface SelectedTypingContentViewModel extends AdminTypingContentViewModel {
+  lyricLines: AdminLyricLineViewModel[];
+}
+
 export default async function AdminTypingPage({ searchParams }: AdminTypingPageProps) {
   const currentUser = await getCurrentUser();
 
@@ -47,6 +61,8 @@ export default async function AdminTypingPage({ searchParams }: AdminTypingPageP
   ]);
   const notice = getSearchParam(resolvedSearchParams.notice);
   const error = getSearchParam(resolvedSearchParams.error);
+  const selectedContentId = getSearchParam(resolvedSearchParams.contentId) ?? contents[0]?.id ?? null;
+  const selectedContent = selectedContentId ? await getSelectedTypingContent(selectedContentId) : null;
 
   return (
     <main className={styles.page}>
@@ -80,6 +96,8 @@ export default async function AdminTypingPage({ searchParams }: AdminTypingPageP
             <span>MANAGE</span>
             <h2>등록된 J-POP 타이핑 곡</h2>
           </div>
+
+          {selectedContent ? <LyricLineEditor content={selectedContent} /> : null}
 
           <div className={styles.contentList}>
             {contents.map((content) => (
@@ -155,6 +173,7 @@ export default async function AdminTypingPage({ searchParams }: AdminTypingPageP
                 </div>
 
                 <div className={styles.cardActions}>
+                  <Link href={`/admin/typing?contentId=${content.id}`}>LRC 라인 편집</Link>
                   <form action={toggleTypingContentPublished}>
                     <input name="contentId" type="hidden" value={content.id} />
                     <button type="submit">
@@ -169,6 +188,103 @@ export default async function AdminTypingPage({ searchParams }: AdminTypingPageP
         </section>
       </section>
     </main>
+  );
+}
+
+function LyricLineEditor({ content }: { content: SelectedTypingContentViewModel }) {
+  return (
+    <section className={styles.lyricEditorPanel} aria-label={`${content.title} LRC line editor`}>
+      <div className={styles.lyricEditorHeader}>
+        <div>
+          <span>LRC EDITOR</span>
+          <h2>{content.title}</h2>
+          <p>
+            라인별 시작/종료 시간과 타이핑용 히라가나를 수정합니다. 저장 시 로마자/한글 발음 가이드는 자동 재생성됩니다.
+          </p>
+        </div>
+        <Link href={`/play?contentId=${content.id}`}>플레이 미리보기</Link>
+      </div>
+
+      <div className={styles.previewBox}>
+        <div className={styles.videoPreview}>
+          <iframe
+            title={`${content.title} YouTube preview`}
+            src={`https://www.youtube.com/embed/${content.youtubeVideoId}`}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          />
+        </div>
+        <div className={styles.timelinePreview}>
+          <strong>타임라인 미리보기</strong>
+          <div className={styles.timelineList}>
+            {content.lyricLines.length > 0 ? (
+              content.lyricLines.slice(0, 12).map((line) => (
+                <article key={`preview-${line.id}`}>
+                  <time>{formatTimestamp(line.startMs)}</time>
+                  <div>
+                    <p>{line.japaneseText}</p>
+                    <span>{line.romajiText}</span>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <p className={styles.emptyLyricText}>아직 등록된 LRC 라인이 없습니다. LRC 업로드나 YouTube 자막 가져오기를 먼저 실행하세요.</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <form action={addLyricLine} className={styles.addLineForm}>
+        <input name="contentId" type="hidden" value={content.id} />
+        <label>
+          시작(ms)
+          <input name="startMs" type="number" defaultValue={content.lyricLines.at(-1)?.endMs ?? 0} />
+        </label>
+        <label>
+          종료(ms)
+          <input name="endMs" type="number" defaultValue={(content.lyricLines.at(-1)?.endMs ?? 0) + 4500} />
+        </label>
+        <label>
+          타이핑 히라가나
+          <input name="japaneseText" placeholder="ゆめならばどれほどよかったでしょう" />
+        </label>
+        <button type="submit">라인 추가</button>
+      </form>
+
+      <div className={styles.lyricLineList}>
+        {content.lyricLines.map((line, index) => (
+          <article className={styles.lyricLineCard} key={line.id}>
+            <div className={styles.lineNumber}>#{index + 1}</div>
+            <form action={updateLyricLine} className={styles.lineForm}>
+              <input name="contentId" type="hidden" value={content.id} />
+              <input name="lineId" type="hidden" value={line.id} />
+              <label>
+                시작(ms)
+                <input name="startMs" type="number" defaultValue={line.startMs} />
+              </label>
+              <label>
+                종료(ms)
+                <input name="endMs" type="number" defaultValue={line.endMs} />
+              </label>
+              <label className={styles.lineTextField}>
+                타이핑 히라가나
+                <textarea name="japaneseText" rows={2} defaultValue={line.japaneseText} />
+              </label>
+              <div className={styles.generatedGuide}>
+                <span>{line.romajiText}</span>
+                <span>{line.koreanPronunciationText}</span>
+              </div>
+              <button type="submit">라인 저장</button>
+            </form>
+            <form action={deleteLyricLine} className={styles.deleteLineForm}>
+              <input name="contentId" type="hidden" value={content.id} />
+              <input name="lineId" type="hidden" value={line.id} />
+              <button type="submit">삭제</button>
+            </form>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -277,6 +393,57 @@ async function getAdminTypingContents(): Promise<AdminTypingContentViewModel[]> 
   }));
 }
 
+async function getSelectedTypingContent(contentId: string): Promise<SelectedTypingContentViewModel | null> {
+  const content = await prisma.content.findFirst({
+    where: {
+      id: contentId,
+      category: ContentCategory.JPOP,
+    },
+    include: {
+      lyricSyncs: {
+        orderBy: [
+          { startMs: "asc" },
+          { lineIndex: "asc" },
+        ],
+      },
+      _count: {
+        select: {
+          lyricSyncs: true,
+        },
+      },
+    },
+  });
+
+  if (!content) {
+    return null;
+  }
+
+  return {
+    id: content.id,
+    youtubeVideoId: content.youtubeVideoId,
+    title: content.title,
+    artist: content.artist ?? "Unknown Artist",
+    thumbnailUrl: content.thumbnailUrl ?? `https://i.ytimg.com/vi/${content.youtubeVideoId}/hqdefault.jpg`,
+    difficulty: content.difficulty,
+    syncOffsetMs: content.syncOffsetMs,
+    durationMs: content.durationMs ?? 0,
+    playCount: content.playCount,
+    isPublished: content.isPublished,
+    isUgc: content.isUgc,
+    lyricLineCount: content._count.lyricSyncs,
+    updatedAt: content.updatedAt.toISOString(),
+    lyricLines: content.lyricSyncs.map((line, index) => ({
+      id: line.id,
+      lineIndex: index,
+      startMs: line.startMs,
+      endMs: line.endMs ?? line.startMs + 4500,
+      japaneseText: line.japaneseText,
+      romajiText: line.romajiText,
+      koreanPronunciationText: line.koreanPronunciationText,
+    })),
+  };
+}
+
 async function createTypingContent(formData: FormData): Promise<void> {
   "use server";
 
@@ -323,20 +490,20 @@ async function uploadLrcForContent(formData: FormData): Promise<void> {
   const lrcText = await readLrcTextFromFormData(formData);
 
   if (!lrcText) {
-    redirectWithMessage("error", "업로드할 LRC 파일 또는 텍스트를 입력해주세요.");
+    redirectWithMessage("error", "업로드할 LRC 파일 또는 텍스트를 입력해주세요.", contentId);
   }
 
   const parsedLines = parseLrc(lrcText);
 
   if (parsedLines.length === 0) {
-    redirectWithMessage("error", "LRC 타임스탬프가 포함된 가사 라인을 찾지 못했습니다.");
+    redirectWithMessage("error", "LRC 타임스탬프가 포함된 가사 라인을 찾지 못했습니다.", contentId);
   }
 
   const preparedLines = await prepareLrcLyricSyncLines(parsedLines);
   await replaceLyricSyncs(contentId, preparedLines);
 
   revalidateTypingPaths();
-  redirectWithMessage("notice", `${preparedLines.length}개 LRC 라인을 DB에 반영했습니다.`);
+  redirectWithMessage("notice", `${preparedLines.length}개 LRC 라인을 DB에 반영했습니다.`, contentId);
 }
 
 async function importYoutubeCaptionsForContent(formData: FormData): Promise<void> {
@@ -354,7 +521,7 @@ async function importYoutubeCaptionsForContent(formData: FormData): Promise<void
   });
 
   if (!content) {
-    redirectWithMessage("error", "자막을 가져올 곡을 찾지 못했습니다.");
+    redirectWithMessage("error", "자막을 가져올 곡을 찾지 못했습니다.", contentId);
   }
 
   let noticeMessage = "";
@@ -368,10 +535,10 @@ async function importYoutubeCaptionsForContent(formData: FormData): Promise<void
     noticeMessage = `${content.title}에 ${preparedLines.length}개 YouTube 자막 라인을 반영했습니다. (${captionResult.trackName})`;
   } catch (error) {
     const message = error instanceof Error ? error.message : "YouTube 자막을 가져오지 못했습니다.";
-    redirectWithMessage("error", message);
+    redirectWithMessage("error", message, contentId);
   }
 
-  redirectWithMessage("notice", noticeMessage);
+  redirectWithMessage("notice", noticeMessage, contentId);
 }
 
 async function toggleTypingContentPublished(formData: FormData): Promise<void> {
@@ -388,7 +555,7 @@ async function toggleTypingContentPublished(formData: FormData): Promise<void> {
   });
 
   if (!content) {
-    redirectWithMessage("error", "공개 상태를 변경할 곡을 찾지 못했습니다.");
+    redirectWithMessage("error", "공개 상태를 변경할 곡을 찾지 못했습니다.", contentId);
   }
 
   await prisma.content.update({
@@ -399,7 +566,95 @@ async function toggleTypingContentPublished(formData: FormData): Promise<void> {
   });
 
   revalidateTypingPaths();
-  redirectWithMessage("notice", `${content.title}을 ${content.isPublished ? "비공개" : "공개"}로 변경했습니다.`);
+  redirectWithMessage("notice", `${content.title}을 ${content.isPublished ? "비공개" : "공개"}로 변경했습니다.`, contentId);
+}
+
+async function addLyricLine(formData: FormData): Promise<void> {
+  "use server";
+
+  await assertAdmin();
+  const contentId = normalizeRequiredText(formData.get("contentId"));
+  const startMs = clampNumber(formData.get("startMs"), 0, 86_400_000, 0);
+  const endMs = clampNumber(formData.get("endMs"), startMs + 500, 86_400_000, startMs + 4500);
+  const japaneseText = normalizeRequiredText(formData.get("japaneseText"));
+  const lineCount = await prisma.lyricSync.count({
+    where: { contentId },
+  });
+  const [preparedLine] = await prepareLyricSyncLines([
+    {
+      startMs,
+      endMs,
+      displayText: japaneseText,
+      typingText: japaneseText,
+    },
+  ]);
+
+  await prisma.lyricSync.create({
+    data: {
+      id: `${contentId}-line-${Date.now()}`,
+      contentId,
+      lineIndex: lineCount,
+      startMs: preparedLine.startMs,
+      endMs: preparedLine.endMs,
+      japaneseText: preparedLine.japaneseText,
+      romajiText: preparedLine.romajiText,
+      koreanPronunciationText: preparedLine.koreanPronunciationText,
+    },
+  });
+
+  await reindexLyricLines(contentId);
+  revalidateTypingPaths();
+  redirectWithMessage("notice", "LRC 라인을 추가했습니다.", contentId);
+}
+
+async function updateLyricLine(formData: FormData): Promise<void> {
+  "use server";
+
+  await assertAdmin();
+  const contentId = normalizeRequiredText(formData.get("contentId"));
+  const lineId = normalizeRequiredText(formData.get("lineId"));
+  const startMs = clampNumber(formData.get("startMs"), 0, 86_400_000, 0);
+  const endMs = clampNumber(formData.get("endMs"), startMs + 500, 86_400_000, startMs + 4500);
+  const japaneseText = normalizeRequiredText(formData.get("japaneseText"));
+  const [preparedLine] = await prepareLyricSyncLines([
+    {
+      startMs,
+      endMs,
+      displayText: japaneseText,
+      typingText: japaneseText,
+    },
+  ]);
+
+  await prisma.lyricSync.update({
+    where: { id: lineId },
+    data: {
+      startMs: preparedLine.startMs,
+      endMs: preparedLine.endMs,
+      japaneseText: preparedLine.japaneseText,
+      romajiText: preparedLine.romajiText,
+      koreanPronunciationText: preparedLine.koreanPronunciationText,
+    },
+  });
+
+  await reindexLyricLines(contentId);
+  revalidateTypingPaths();
+  redirectWithMessage("notice", "LRC 라인을 저장했습니다.", contentId);
+}
+
+async function deleteLyricLine(formData: FormData): Promise<void> {
+  "use server";
+
+  await assertAdmin();
+  const contentId = normalizeRequiredText(formData.get("contentId"));
+  const lineId = normalizeRequiredText(formData.get("lineId"));
+
+  await prisma.lyricSync.delete({
+    where: { id: lineId },
+  });
+
+  await reindexLyricLines(contentId);
+  revalidateTypingPaths();
+  redirectWithMessage("notice", "LRC 라인을 삭제했습니다.", contentId);
 }
 
 async function replaceLyricSyncs(contentId: string, lines: PreparedLyricSyncLine[]) {
@@ -419,6 +674,38 @@ async function replaceLyricSyncs(contentId: string, lines: PreparedLyricSyncLine
         koreanPronunciationText: line.koreanPronunciationText,
       })),
     }),
+  ]);
+}
+
+async function reindexLyricLines(contentId: string) {
+  const lines = await prisma.lyricSync.findMany({
+    where: { contentId },
+    orderBy: [
+      { startMs: "asc" },
+      { lineIndex: "asc" },
+    ],
+    select: {
+      id: true,
+    },
+  });
+
+  if (lines.length === 0) {
+    return;
+  }
+
+  await prisma.$transaction([
+    ...lines.map((line, index) =>
+      prisma.lyricSync.update({
+        where: { id: line.id },
+        data: { lineIndex: -index - 1 },
+      }),
+    ),
+    ...lines.map((line, index) =>
+      prisma.lyricSync.update({
+        where: { id: line.id },
+        data: { lineIndex: index },
+      }),
+    ),
   ]);
 }
 
@@ -523,8 +810,16 @@ function getSearchParam(value: string | string[] | undefined): string | undefine
   return Array.isArray(value) ? value[0] : value;
 }
 
-function redirectWithMessage(type: "notice" | "error", message: string): never {
-  redirect(`/admin/typing?${type}=${encodeURIComponent(message)}`);
+function redirectWithMessage(type: "notice" | "error", message: string, contentId?: string): never {
+  const params = new URLSearchParams({
+    [type]: message,
+  });
+
+  if (contentId) {
+    params.set("contentId", contentId);
+  }
+
+  redirect(`/admin/typing?${params.toString()}`);
 }
 
 function revalidateTypingPaths() {
@@ -543,4 +838,18 @@ function formatDateTime(value: string): string {
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(value));
+}
+
+function formatTimestamp(milliseconds: number): string {
+  const clamped = Math.max(0, Math.round(milliseconds));
+  const totalSeconds = Math.floor(clamped / 1000);
+  const minutes = Math.floor(totalSeconds / 60)
+    .toString()
+    .padStart(2, "0");
+  const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+  const centiseconds = Math.floor((clamped % 1000) / 10)
+    .toString()
+    .padStart(2, "0");
+
+  return `${minutes}:${seconds}.${centiseconds}`;
 }
