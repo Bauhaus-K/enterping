@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { RewardNotificationCenter } from "../components/RewardNotificationCenter";
 import { SiteHeader } from "../components/SiteHeader";
 import "./globals.css";
 
@@ -15,6 +16,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <SiteHeader />
         {children}
+        <RewardNotificationCenter />
       </body>
     </html>
   );

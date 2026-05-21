@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 
 import { QuizAudioPlayer } from "../../../components/QuizAudioPlayer";
+import { dispatchRewardNotifications } from "../../../components/RewardNotificationCenter";
 import type { CurrentUser } from "../../../lib/auth";
 import type { QuizCategory, QuizItem } from "../../../lib/quizData";
 import styles from "./page.module.css";
@@ -342,7 +343,7 @@ export function QuizBattle({ category, currentUser, items, mode = "solo", roomCo
         typoLogs: [],
       }),
     })
-      .then((response) => {
+      .then(async (response) => {
         if (!response.ok && response.status !== 401) {
           throw new Error(`Quiz session save failed with status ${response.status}`);
         }
@@ -352,6 +353,10 @@ export function QuizBattle({ category, currentUser, items, mode = "solo", roomCo
           return;
         }
 
+        const data = (await response.json()) as {
+          unlockedRewards?: Parameters<typeof dispatchRewardNotifications>[0];
+        };
+        dispatchRewardNotifications(data.unlockedRewards ?? []);
         setFeedback("라운드 완료! 기록이 프로필에 저장되었습니다.");
       })
       .catch((error) => {

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { TypingInputMode, type ValidateInputResult } from "../../lib/typingEngine";
+import { dispatchRewardNotifications } from "../RewardNotificationCenter";
 import { useGameStore, PLAYER_STATE } from "./useGameStore";
 import { cacheLyrics, getCachedLyrics } from "../../lib/lyricCache";
 import type {
@@ -159,6 +160,13 @@ export function GamePlayer({
 
           if (!response.ok && response.status !== 401) {
             throw new Error(`Session save failed with status ${response.status}`);
+          }
+
+          if (response.ok) {
+            const data = (await response.json()) as {
+              unlockedRewards?: Parameters<typeof dispatchRewardNotifications>[0];
+            };
+            dispatchRewardNotifications(data.unlockedRewards ?? []);
           }
         } else {
           // Keep anonymous practice playable without forcing login.

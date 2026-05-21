@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
+import { getAccuracyStreak, REWARD_DEFINITIONS, type RewardDefinition } from "../../lib/rewards";
+import { AttendanceCheckInButton } from "./AttendanceCheckInButton";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
@@ -69,6 +71,12 @@ export default async function ProfilePage() {
   const quizAnalysis = buildQuizAnalysis(quizSessions);
   const attendanceDays = buildAttendanceDays(user.consecutiveLoginDays, user.lastLoginAt);
   const totalPlaytimeLabel = formatDuration(user.totalPlaytimeMs);
+  const rewardGoals = buildRewardGoals({
+    totalPlaytimeMs: user.totalPlaytimeMs,
+    consecutiveLoginDays: user.consecutiveLoginDays,
+    recentSessions: user.gameSessions,
+    unlockedSlugs: user.rewards.map((userReward) => userReward.reward.slug),
+  });
 
   return (
     <main className={styles.page}>
@@ -125,12 +133,32 @@ export default async function ProfilePage() {
             <span>일 연속 출석 중</span>
             <p>마지막 출석: {user.lastLoginAt ? formatDateTime(user.lastLoginAt) : "기록 없음"}</p>
           </div>
+          <AttendanceCheckInButton />
           <div className={styles.attendanceTrack} aria-label="최근 7일 출석 현황">
             {attendanceDays.map((day) => (
               <div className={day.checked ? styles.attendanceChecked : styles.attendanceEmpty} key={day.key}>
                 <span>{day.label}</span>
                 <strong>{day.checked ? "출석" : "-"}</strong>
               </div>
+            ))}
+          </div>
+        </article>
+
+        <article className={`${styles.panel} ${styles.rewardGoalPanel}`}>
+          <PanelHeader eyebrow="Automation" title="다음 뱃지 목표" description="플레이와 출석 기록에 따라 자동으로 잠금 해제됩니다." />
+          <div className={styles.rewardGoalList}>
+            {rewardGoals.map((goal) => (
+              <section className={styles.rewardGoalCard} key={goal.slug}>
+                <div>
+                  <span>{goal.kind === "TITLE" ? "칭호" : "뱃지"}</span>
+                  <h3>{goal.name}</h3>
+                  <p>{goal.description}</p>
+                </div>
+                <strong>{goal.progressLabel}</strong>
+                <div className={styles.goalTrack} aria-label={`${goal.name} progress`}>
+                  <span style={{ width: `${goal.progressPercent}%` }} />
+                </div>
+              </section>
             ))}
           </div>
         </article>
@@ -360,6 +388,72 @@ function buildAttendanceDays(streak: number, lastLoginAt: Date | null) {
       checked: checkedDates.has(key),
     };
   });
+}
+
+function buildRewardGoals({
+  totalPlaytimeMs,
+  consecutiveLoginDays,
+  recentSessions,
+  unlockedSlugs,
+}: {
+  totalPlaytimeMs: number;
+  consecutiveLoginDays: number;
+  recentSessions: Array<{ accuracy: number; startedAt: Date; createdAt: Date }>;
+  unlockedSlugs: string[];
+}) {
+  const unlockedSlugSet = new Set(unlockedSlugs);
+  const accuracyStreak = getAccuracyStreak(recentSessions);
+
+  return REWARD_DEFINITIONS.map((definition) => {
+    const currentValue = getRewardProgressValue({
+      definition,
+      totalPlaytimeMs,
+      consecutiveLoginDays,
+      accuracyStreak,
+    });
+    const progressPercent = Math.min(Math.round((currentValue / definition.threshold) * 100), 100);
+
+    return {
+      ...definition,
+      progressPercent,
+      progressLabel: unlockedSlugSet.has(definition.slug)
+        ? "획득 완료"
+        : `${formatRewardProgressValue(definition, currentValue)} / ${formatRewardProgressValue(definition, definition.threshold)}`,
+    };
+  });
+}
+
+function getRewardProgressValue({
+  definition,
+  totalPlaytimeMs,
+  consecutiveLoginDays,
+  accuracyStreak,
+}: {
+  definition: RewardDefinition;
+  totalPlaytimeMs: number;
+  consecutiveLoginDays: number;
+  accuracyStreak: number;
+}) {
+  switch (definition.metric) {
+    case "TOTAL_PLAYTIME_MS":
+      return totalPlaytimeMs;
+    case "LOGIN_STREAK":
+      return consecutiveLoginDays;
+    case "ACCURACY_STREAK":
+      return accuracyStreak;
+  }
+}
+
+function formatRewardProgressValue(definition: RewardDefinition, value: number): string {
+  if (definition.metric === "TOTAL_PLAYTIME_MS") {
+    return formatDuration(value);
+  }
+
+  if (definition.metric === "LOGIN_STREAK") {
+    return `${value}일`;
+  }
+
+  return `${value}게임`;
 }
 
 function average(values: number[]): number {

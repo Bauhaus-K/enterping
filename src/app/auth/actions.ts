@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { clearAuthCookie, setAuthCookie } from "../../lib/auth";
 import { hashPassword, verifyPassword } from "../../lib/password";
 import { prisma } from "../../lib/prisma";
+import { setPendingRewardNotificationCookie } from "../../lib/rewardNotificationCookie";
 import { recordLoginAndUpdateStreak, unlockRewardsForUser } from "../../lib/rewards";
 
 export interface AuthActionState {
@@ -105,7 +106,8 @@ async function afterSuccessfulLogin(userId: string): Promise<void> {
       userId,
       timezoneOffsetMinutes: KOREA_TIMEZONE_OFFSET_MINUTES,
     });
-    await unlockRewardsForUser({ userId });
+    const unlockedRewards = await unlockRewardsForUser({ userId });
+    await setPendingRewardNotificationCookie(unlockedRewards);
   } catch (error) {
     console.warn("[Enterping][Auth] Login reward/streak update failed", error);
   }
