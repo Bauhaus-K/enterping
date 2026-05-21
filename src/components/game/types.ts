@@ -49,6 +49,24 @@ export interface GameTypoDraft {
   createdAt: string;
 }
 
+export interface GameLineResultDraft {
+  lyricSyncId?: string;
+  lyricLineIndex: number;
+  japaneseText: string;
+  expectedInput: string;
+  submittedInput: string;
+  startedVideoTimestampMs?: number;
+  completedVideoTimestampMs?: number;
+  startedSessionTimestampMs?: number;
+  completedSessionTimestampMs?: number;
+  responseDelayMs?: number;
+  durationMs?: number;
+  typoCount: number;
+  strokeCount: number;
+  isSuccess: boolean;
+  isDifficult: boolean;
+}
+
 export interface GameSessionDraft {
   userId?: string;
   contentId: string;
@@ -65,4 +83,5 @@ export interface GameSessionDraft {
   startedAt: string;
   endedAt: string;
   typoLogs: GameTypoDraft[];
+  lineResults: GameLineResultDraft[];
 }

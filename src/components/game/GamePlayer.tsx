@@ -69,6 +69,7 @@ export function GamePlayer({
     setCurrentLyric,
     metrics,
     typoLogs,
+    lineResults,
     sessionStartedAt
   } = useGameStore();
 
@@ -119,6 +120,8 @@ export function GamePlayer({
       return;
     }
     
+    useGameStore.getState().finalizeCurrentLine();
+    const finalizedLineResults = useGameStore.getState().lineResults;
     setSessionSaved(true);
     const endedAt = new Date();
     
@@ -138,6 +141,7 @@ export function GamePlayer({
       startedAt: (sessionStartedAt ?? endedAt).toISOString(),
       endedAt: endedAt.toISOString(),
       typoLogs,
+      lineResults: finalizedLineResults,
     };
 
     setSessionSaveState("saving");
@@ -182,7 +186,7 @@ export function GamePlayer({
     };
     
     doSave();
-  }, [playerState, sessionSaved, userId, content.id, gameMode, inputMode, metrics, sessionStartedAt, typoLogs, saveSession, onSessionSaved, setSessionSaveState, setSessionSaved]);
+  }, [playerState, sessionSaved, userId, content.id, gameMode, inputMode, metrics, sessionStartedAt, typoLogs, lineResults, saveSession, onSessionSaved, setSessionSaveState, setSessionSaved]);
 
   const shellClassName = className ? `${styles.shell} ${className}` : styles.shell;
   const firstLyricStartMs = Math.max(

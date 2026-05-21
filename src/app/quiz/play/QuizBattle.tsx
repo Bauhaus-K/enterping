@@ -341,6 +341,7 @@ export function QuizBattle({ category, currentUser, items, mode = "solo", roomCo
         startedAt: sessionStartedAtRef.current.toISOString(),
         endedAt: endedAt.toISOString(),
         typoLogs: [],
+        lineResults: [],
       }),
     })
       .then(async (response) => {

@@ -41,6 +41,23 @@ interface SaveGameSessionBody {
     contextualPreviousWord?: unknown;
     contextualNextWord?: unknown;
   }>;
+  lineResults?: Array<{
+    lyricSyncId?: unknown;
+    lyricLineIndex?: unknown;
+    japaneseText?: unknown;
+    expectedInput?: unknown;
+    submittedInput?: unknown;
+    startedVideoTimestampMs?: unknown;
+    completedVideoTimestampMs?: unknown;
+    startedSessionTimestampMs?: unknown;
+    completedSessionTimestampMs?: unknown;
+    responseDelayMs?: unknown;
+    durationMs?: unknown;
+    typoCount?: unknown;
+    strokeCount?: unknown;
+    isSuccess?: unknown;
+    isDifficult?: unknown;
+  }>;
 }
 
 export async function POST(request: Request) {
@@ -69,8 +86,12 @@ export async function POST(request: Request) {
   const startedAt = parseDate(body.startedAt) ?? new Date();
   const endedAt = parseDate(body.endedAt) ?? new Date();
   const typoLogs = Array.isArray(body.typoLogs) ? body.typoLogs.slice(0, 300) : [];
+  const lineResults = Array.isArray(body.lineResults) ? body.lineResults.slice(0, 500) : [];
   const existingLyricSyncIds = await getExistingLyricSyncIds(
-    typoLogs.map((typoLog) => getString(typoLog.lyricSyncId)).filter(Boolean) as string[],
+    [
+      ...typoLogs.map((typoLog) => getString(typoLog.lyricSyncId)),
+      ...lineResults.map((lineResult) => getString(lineResult.lyricSyncId)),
+    ].filter(Boolean) as string[],
   );
 
   const savedSession = await prisma.$transaction(async (tx) => {
@@ -146,6 +167,18 @@ export async function POST(request: Request) {
       });
     }
 
+    const sanitizedLineResults = sanitizeLineResults({
+      lineResults,
+      sessionId: session.id,
+      existingLyricSyncIds,
+    });
+
+    if (sanitizedLineResults.length > 0) {
+      await tx.gameSessionLineResult.createMany({
+        data: sanitizedLineResults,
+      });
+    }
+
     await tx.user.update({
       where: {
         id: currentUser.id,
@@ -196,6 +229,59 @@ async function getExistingLyricSyncIds(ids: string[]): Promise<Set<string>> {
   return new Set(lyricSyncs.map((lyricSync) => lyricSync.id));
 }
 
+function sanitizeLineResults({
+  lineResults,
+  sessionId,
+  existingLyricSyncIds,
+}: {
+  lineResults: NonNullable<SaveGameSessionBody["lineResults"]>;
+  sessionId: string;
+  existingLyricSyncIds: Set<string>;
+}) {
+  const seenLineIndexes = new Set<number>();
+
+  return lineResults
+    .map((lineResult, fallbackIndex) => {
+      const lyricSyncId = getString(lineResult.lyricSyncId);
+      const lineIndex = clampInteger(lineResult.lyricLineIndex, 0, 100_000);
+      const japaneseText = getString(lineResult.japaneseText)?.slice(0, 4000) ?? "";
+      const expectedInput = getString(lineResult.expectedInput)?.slice(0, 4000) ?? "";
+      const submittedInput = getString(lineResult.submittedInput)?.slice(0, 4000) ?? "";
+      const typoCount = clampInteger(lineResult.typoCount, 0, 10_000);
+      const strokeCount = clampInteger(lineResult.strokeCount, 0, 100_000);
+      const responseDelayMs = getOptionalClampedInteger(lineResult.responseDelayMs, 0, 24 * 60 * 60 * 1000);
+      const durationMs = getOptionalClampedInteger(lineResult.durationMs, 0, 24 * 60 * 60 * 1000);
+
+      return {
+        gameSessionId: sessionId,
+        lyricSyncId: lyricSyncId && existingLyricSyncIds.has(lyricSyncId) ? lyricSyncId : null,
+        lineIndex: Number.isFinite(lineIndex) ? lineIndex : fallbackIndex,
+        japaneseText,
+        expectedInput,
+        submittedInput,
+        startedVideoTimestampMs: getOptionalClampedInteger(lineResult.startedVideoTimestampMs, 0, 24 * 60 * 60 * 1000),
+        completedVideoTimestampMs: getOptionalClampedInteger(lineResult.completedVideoTimestampMs, 0, 24 * 60 * 60 * 1000),
+        startedSessionTimestampMs: getOptionalClampedInteger(lineResult.startedSessionTimestampMs, 0, 24 * 60 * 60 * 1000),
+        completedSessionTimestampMs: getOptionalClampedInteger(lineResult.completedSessionTimestampMs, 0, 24 * 60 * 60 * 1000),
+        responseDelayMs,
+        durationMs,
+        typoCount,
+        strokeCount,
+        isSuccess: lineResult.isSuccess === true,
+        isDifficult: lineResult.isDifficult === true || typoCount > 0 || lineResult.isSuccess !== true || (responseDelayMs ?? 0) > 3500,
+      };
+    })
+    .filter((lineResult) => lineResult.japaneseText || lineResult.expectedInput || lineResult.submittedInput)
+    .filter((lineResult) => {
+      if (seenLineIndexes.has(lineResult.lineIndex)) {
+        return false;
+      }
+
+      seenLineIndexes.add(lineResult.lineIndex);
+      return true;
+    });
+}
+
 function parseGameMode(value: unknown): GameMode {
   return value === GameMode.LISTEN_AND_GUESS ? GameMode.LISTEN_AND_GUESS : GameMode.LISTEN_AND_TYPE_LYRICS;
 }
@@ -238,6 +324,20 @@ function getOptionalInteger(value: unknown): number | null {
   }
 
   return Math.round(Number(value));
+}
+
+function getOptionalClampedInteger(value: unknown, min: number, max: number): number | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const numberValue = Math.round(Number(value));
+
+  if (!Number.isFinite(numberValue)) {
+    return null;
+  }
+
+  return Math.min(Math.max(numberValue, min), max);
 }
 
 function clampInteger(value: unknown, min: number, max: number): number {

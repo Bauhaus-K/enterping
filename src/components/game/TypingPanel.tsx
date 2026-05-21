@@ -25,6 +25,7 @@ export function TypingPanel({ lyrics, inputMode, onCorrectLyric, onValidationCha
     currentLyric,
     completedLyricId,
     setCompletedLyricId,
+    completeCurrentLine,
     applyInput,
     setPlayerState,
   } = useGameStore();
@@ -67,6 +68,7 @@ export function TypingPanel({ lyrics, inputMode, onCorrectLyric, onValidationCha
       validationResult?.state === InputValidationState.Correct &&
       completedLyricId !== activeTypingLyric.id
     ) {
+      completeCurrentLine(activeTypingLyric, userInput, validationResult.matchedInput);
       setCompletedLyricId(activeTypingLyric.id);
       onCorrectLyric?.(activeTypingLyric, userInput);
 
@@ -86,6 +88,7 @@ export function TypingPanel({ lyrics, inputMode, onCorrectLyric, onValidationCha
     validationResult?.state,
     completedLyricId,
     setCompletedLyricId,
+    completeCurrentLine,
     setPlayerState,
   ]);
 

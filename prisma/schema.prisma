@@ -129,6 +129,7 @@ model LyricSync {
   updatedAt DateTime @updatedAt
 
   typoLogs TypoLog[]
+  lineResults GameSessionLineResult[]
 
   @@unique([contentId, lineIndex])
   @@index([contentId, startMs])
@@ -163,9 +164,46 @@ model GameSession {
   createdAt DateTime @default(now())
 
   typoLogs TypoLog[]
+  lineResults GameSessionLineResult[]
 
   @@index([userId, startedAt])
   @@index([contentId])
+}
+
+model GameSessionLineResult {
+  id String @id @default(cuid())
+
+  gameSessionId String
+  gameSession   GameSession @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
+
+  lyricSyncId String?
+  lyricSync   LyricSync? @relation(fields: [lyricSyncId], references: [id], onDelete: SetNull)
+
+  lineIndex Int
+
+  japaneseText String @db.Text
+  expectedInput String @db.Text
+  submittedInput String @db.Text
+
+  startedVideoTimestampMs Int?
+  completedVideoTimestampMs Int?
+  startedSessionTimestampMs Int?
+  completedSessionTimestampMs Int?
+
+  responseDelayMs Int?
+  durationMs Int?
+  typoCount Int @default(0)
+  strokeCount Int @default(0)
+  isSuccess Boolean @default(false)
+  isDifficult Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@unique([gameSessionId, lineIndex])
+  @@index([gameSessionId])
+  @@index([lyricSyncId])
+  @@index([isDifficult])
+  @@index([lineIndex])
 }
 
 model TypoLog {

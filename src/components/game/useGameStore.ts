@@ -7,9 +7,9 @@ import {
   validateInput,
 } from "../../lib/typingEngine";
 import type {
+  GameLineResultDraft,
   GameMetrics,
   GamePlayerLyricSync,
-  GameSessionDraft,
   GameTypoDraft,
 } from "./types";
 
@@ -35,6 +35,8 @@ interface GameState {
   isComposing: boolean;
   currentLyric: GamePlayerLyricSync | null;
   completedLyricId: string | null;
+  activeLineStartedVideoTimestampMs: number | null;
+  activeLineStartedSessionTimestampMs: number | null;
   
   // Session / Metrics
   sessionStartedAt: Date | null;
@@ -49,6 +51,7 @@ interface GameState {
   };
   metrics: GameMetrics;
   typoLogs: GameTypoDraft[];
+  lineResults: GameLineResultDraft[];
   peakStrokesPerMinute: number;
   
   // Actions
@@ -61,6 +64,8 @@ interface GameState {
   setIsComposing: (composing: boolean) => void;
   setCurrentLyric: (lyric: GamePlayerLyricSync | null) => void;
   setCompletedLyricId: (id: string | null) => void;
+  completeCurrentLine: (lyric: GamePlayerLyricSync, submittedInput: string, matchedInput?: string) => void;
+  finalizeCurrentLine: () => void;
   ensureSessionStarted: () => void;
   setElapsedMs: (ms: number) => void;
   setSessionSaveState: (state: "idle" | "saving" | "saved" | "error") => void;
@@ -115,6 +120,8 @@ export const useGameStore = create<GameState>((set, get) => ({
   isComposing: false,
   currentLyric: null,
   completedLyricId: null,
+  activeLineStartedVideoTimestampMs: null,
+  activeLineStartedSessionTimestampMs: null,
   
   sessionStartedAt: null,
   sessionStartedMonotonicMs: null,
@@ -124,6 +131,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   strokeTotals: { totalStrokes: 0, correctStrokes: 0, incorrectStrokes: 0 },
   metrics: initialMetrics,
   typoLogs: [],
+  lineResults: [],
   peakStrokesPerMinute: 0,
 
   // Actions
@@ -142,14 +150,76 @@ export const useGameStore = create<GameState>((set, get) => ({
       return { currentLyric: lyric };
     }
 
+    const missedLineResult =
+      state.currentLyric && !state.lineResults.some((lineResult) => lineResult.lyricSyncId === state.currentLyric?.id)
+        ? buildLineResult({
+            lyric: state.currentLyric,
+            submittedInput: state.userInput,
+            matchedInput: state.currentLyric.romajiText ?? undefined,
+            isSuccess: false,
+            startedVideoTimestampMs: state.activeLineStartedVideoTimestampMs ?? state.currentLyric.startMs,
+            completedVideoTimestampMs: state.currentTimestampMs,
+            startedSessionTimestampMs: state.activeLineStartedSessionTimestampMs ?? state.elapsedMs,
+            completedSessionTimestampMs: state.elapsedMs,
+            typoLogs: state.typoLogs,
+          })
+        : null;
+
     return {
       currentLyric: lyric,
       userInput: "",
       isComposing: false,
       completedLyricId: null,
+      activeLineStartedVideoTimestampMs: lyric ? state.currentTimestampMs : null,
+      activeLineStartedSessionTimestampMs: lyric ? state.elapsedMs : null,
+      lineResults: missedLineResult ? [...state.lineResults, missedLineResult] : state.lineResults,
     };
   }),
   setCompletedLyricId: (id) => set({ completedLyricId: id }),
+  completeCurrentLine: (lyric, submittedInput, matchedInput) => set((state) => {
+    if (state.lineResults.some((lineResult) => lineResult.lyricSyncId === lyric.id)) {
+      return {};
+    }
+
+    return {
+      lineResults: [
+        ...state.lineResults,
+        buildLineResult({
+          lyric,
+          submittedInput,
+          matchedInput,
+          isSuccess: true,
+          startedVideoTimestampMs: state.activeLineStartedVideoTimestampMs ?? lyric.startMs,
+          completedVideoTimestampMs: state.currentTimestampMs,
+          startedSessionTimestampMs: state.activeLineStartedSessionTimestampMs ?? state.elapsedMs,
+          completedSessionTimestampMs: state.elapsedMs,
+          typoLogs: state.typoLogs,
+        }),
+      ],
+    };
+  }),
+  finalizeCurrentLine: () => set((state) => {
+    if (!state.currentLyric || state.lineResults.some((lineResult) => lineResult.lyricSyncId === state.currentLyric?.id)) {
+      return {};
+    }
+
+    return {
+      lineResults: [
+        ...state.lineResults,
+        buildLineResult({
+          lyric: state.currentLyric,
+          submittedInput: state.userInput,
+          matchedInput: state.currentLyric.romajiText ?? undefined,
+          isSuccess: false,
+          startedVideoTimestampMs: state.activeLineStartedVideoTimestampMs ?? state.currentLyric.startMs,
+          completedVideoTimestampMs: state.currentTimestampMs,
+          startedSessionTimestampMs: state.activeLineStartedSessionTimestampMs ?? state.elapsedMs,
+          completedSessionTimestampMs: state.elapsedMs,
+          typoLogs: state.typoLogs,
+        }),
+      ],
+    };
+  }),
   setSessionSaveState: (state) => set({ sessionSaveState: state }),
   setSessionSaved: (saved) => set({ sessionSaved: saved }),
 
@@ -227,6 +297,8 @@ export const useGameStore = create<GameState>((set, get) => ({
     isComposing: false,
     currentLyric: null,
     completedLyricId: null,
+    activeLineStartedVideoTimestampMs: null,
+    activeLineStartedSessionTimestampMs: null,
     sessionStartedAt: null,
     sessionStartedMonotonicMs: null,
     sessionSaved: false,
@@ -235,6 +307,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     strokeTotals: { totalStrokes: 0, correctStrokes: 0, incorrectStrokes: 0 },
     metrics: initialMetrics,
     typoLogs: [],
+    lineResults: [],
     peakStrokesPerMinute: 0,
   }),
 }));
@@ -247,6 +320,53 @@ interface EvaluateInputChangeParams {
   inputMode: TypingInputMode;
   videoTimestampMs: number;
   sessionTimestampMs: number;
+}
+
+interface BuildLineResultParams {
+  lyric: GamePlayerLyricSync;
+  submittedInput: string;
+  matchedInput?: string;
+  isSuccess: boolean;
+  startedVideoTimestampMs: number;
+  completedVideoTimestampMs: number;
+  startedSessionTimestampMs: number;
+  completedSessionTimestampMs: number;
+  typoLogs: GameTypoDraft[];
+}
+
+function buildLineResult({
+  lyric,
+  submittedInput,
+  matchedInput,
+  isSuccess,
+  startedVideoTimestampMs,
+  completedVideoTimestampMs,
+  startedSessionTimestampMs,
+  completedSessionTimestampMs,
+  typoLogs,
+}: BuildLineResultParams): GameLineResultDraft {
+  const lineTypoCount = typoLogs.filter((typoLog) => typoLog.lyricSyncId === lyric.id).length;
+  const responseDelayMs = Math.max(0, completedVideoTimestampMs - lyric.startMs);
+  const durationMs = Math.max(0, completedSessionTimestampMs - startedSessionTimestampMs);
+  const expectedInput = matchedInput || lyric.romajiText || lyric.typingText || lyric.japaneseText;
+
+  return {
+    lyricSyncId: lyric.id,
+    lyricLineIndex: lyric.lineIndex,
+    japaneseText: lyric.typingText ?? lyric.japaneseText,
+    expectedInput,
+    submittedInput,
+    startedVideoTimestampMs,
+    completedVideoTimestampMs,
+    startedSessionTimestampMs,
+    completedSessionTimestampMs,
+    responseDelayMs,
+    durationMs,
+    typoCount: lineTypoCount,
+    strokeCount: Array.from(submittedInput).length,
+    isSuccess,
+    isDifficult: !isSuccess || lineTypoCount > 0 || responseDelayMs > 4500,
+  };
 }
 
 function evaluateInputChange({
