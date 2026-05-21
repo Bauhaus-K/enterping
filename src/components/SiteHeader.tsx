@@ -37,7 +37,7 @@ export async function SiteHeader() {
 
         {currentUser ? (
           <>
-            <Link className={styles.userPill} href="/typing">
+            <Link className={styles.userPill} href="/profile">
               {currentUser.displayName ?? currentUser.username}
             </Link>
             <form action={logoutAction}>
