@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { ContentCategory } from "@prisma/client";
 
 import { JPOP_SONGS, type JpopSong } from "../../lib/jpopSongs";
 import { countJpopSongLines } from "../../lib/loadSongLyrics";
+import { prisma } from "../../lib/prisma";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +13,14 @@ interface SearchPageProps {
 }
 
 interface SearchResult {
-  song: JpopSong;
+  song: {
+    id: string;
+    title: string;
+    artist: string;
+    category: string;
+    thumbnailUrl: string;
+    difficulty: number;
+  };
   lineCount: number;
 }
 
@@ -96,16 +105,74 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
 async function getSearchResults(query: string): Promise<SearchResult[]> {
   const normalizedQuery = normalizeSearchText(query);
-  const matchedSongs = normalizedQuery
+  const matchedStaticSongs = normalizedQuery
     ? JPOP_SONGS.filter((song) => doesSongMatch(song, normalizedQuery))
     : JPOP_SONGS;
+  const [staticResults, databaseResults] = await Promise.all([
+    Promise.all(
+      matchedStaticSongs.map(async (song) => ({
+        song,
+        lineCount: await countJpopSongLines(song),
+      })),
+    ),
+    getDatabaseSearchResults(normalizedQuery),
+  ]);
+  const resultsById = new Map<string, SearchResult>();
 
-  return Promise.all(
-    matchedSongs.map(async (song) => ({
-      song,
-      lineCount: await countJpopSongLines(song),
-    })),
-  );
+  for (const result of staticResults) {
+    resultsById.set(result.song.id, result);
+  }
+
+  for (const result of databaseResults) {
+    resultsById.set(result.song.id, result);
+  }
+
+  return Array.from(resultsById.values());
+}
+
+async function getDatabaseSearchResults(normalizedQuery: string): Promise<SearchResult[]> {
+  try {
+    const contents = await prisma.content.findMany({
+      where: {
+        category: ContentCategory.JPOP,
+        isPublished: true,
+      },
+      include: {
+        _count: {
+          select: {
+            lyricSyncs: true,
+          },
+        },
+      },
+      orderBy: [
+        { playCount: "desc" },
+        { createdAt: "desc" },
+      ],
+    });
+
+    return contents
+      .filter((content) => {
+        if (!normalizedQuery) {
+          return true;
+        }
+
+        return normalizeSearchText(`${content.title} ${content.artist ?? ""} ${content.category}`).includes(normalizedQuery);
+      })
+      .map((content) => ({
+        song: {
+          id: content.id,
+          title: content.title,
+          artist: content.artist ?? "Unknown Artist",
+          category: content.category,
+          thumbnailUrl: content.thumbnailUrl ?? `https://i.ytimg.com/vi/${content.youtubeVideoId}/hqdefault.jpg`,
+          difficulty: content.difficulty,
+        },
+        lineCount: content._count.lyricSyncs,
+      }));
+  } catch (error) {
+    console.warn("[Enterping][Search] Failed to load DB search results.", error);
+    return [];
+  }
 }
 
 function doesSongMatch(song: JpopSong, normalizedQuery: string): boolean {

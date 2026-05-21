@@ -1,4 +1,5 @@
 import { GamePlayer } from "../../components/game/GamePlayer";
+import { isAdminUser } from "../../lib/admin";
 import { getCurrentUser } from "../../lib/auth";
 import {
   buildJpopSongGameContent,
@@ -23,7 +24,7 @@ export default async function PlayPage({ searchParams }: PlayPageProps) {
   const resolvedSearchParams = await searchParams;
   const selectedContentId = getSearchParam(resolvedSearchParams.contentId) ?? DEFAULT_SONG_ID;
   const currentUser = await getCurrentUser();
-  const gameData = await getGameData(selectedContentId, currentUser?.id);
+  const gameData = await getGameData(selectedContentId, currentUser?.id, isAdminUser(currentUser));
 
   return (
     <main className={styles.page}>
@@ -37,8 +38,8 @@ export default async function PlayPage({ searchParams }: PlayPageProps) {
   );
 }
 
-async function getGameData(selectedContentId: string, userId?: string) {
-  const databaseGameData = await getDatabaseGameData(selectedContentId, userId);
+async function getGameData(selectedContentId: string, userId?: string, canViewDraft = false) {
+  const databaseGameData = await getDatabaseGameData(selectedContentId, userId, canViewDraft);
   if (databaseGameData) {
     return databaseGameData;
   }
@@ -60,7 +61,7 @@ async function getGameData(selectedContentId: string, userId?: string) {
   };
 }
 
-async function getDatabaseGameData(selectedContentId: string, userId?: string) {
+async function getDatabaseGameData(selectedContentId: string, userId?: string, canViewDraft = false) {
   try {
     const content = await prisma.content.findUnique({
       where: { id: selectedContentId },
@@ -73,7 +74,7 @@ async function getDatabaseGameData(selectedContentId: string, userId?: string) {
       },
     });
 
-    if (!content || content.lyricSyncs.length === 0) {
+    if (!content || content.lyricSyncs.length === 0 || (!content.isPublished && !canViewDraft)) {
       return null;
     }
 

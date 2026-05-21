@@ -23,6 +23,7 @@ export async function SiteHeader() {
         <Link href="/quiz">퀴즈</Link>
         <Link href="/ranking">랭킹</Link>
         <Link href="/notices">공지</Link>
+        {canOpenAdmin ? <Link href="/admin/typing">타이핑관리</Link> : null}
         {canOpenAdmin ? <Link href="/admin/quiz">퀴즈관리</Link> : null}
         {canOpenAdmin ? <Link href="/admin/notices">공지관리</Link> : null}
       </nav>
