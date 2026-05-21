@@ -1,4 +1,5 @@
 import { GamePlayer } from "../../components/game/GamePlayer";
+import { getCurrentUser } from "../../lib/auth";
 import {
   buildJpopSongGameContent,
   getJpopSongById,
@@ -21,7 +22,8 @@ const DEFAULT_SONG_ID = JPOP_SONGS[0]?.id ?? "jpop-lemon";
 export default async function PlayPage({ searchParams }: PlayPageProps) {
   const resolvedSearchParams = await searchParams;
   const selectedContentId = getSearchParam(resolvedSearchParams.contentId) ?? DEFAULT_SONG_ID;
-  const gameData = await getGameData(selectedContentId);
+  const currentUser = await getCurrentUser();
+  const gameData = await getGameData(selectedContentId, currentUser?.id);
 
   return (
     <main className={styles.page}>
@@ -35,8 +37,8 @@ export default async function PlayPage({ searchParams }: PlayPageProps) {
   );
 }
 
-async function getGameData(selectedContentId: string) {
-  const databaseGameData = await getDatabaseGameData(selectedContentId);
+async function getGameData(selectedContentId: string, userId?: string) {
+  const databaseGameData = await getDatabaseGameData(selectedContentId, userId);
   if (databaseGameData) {
     return databaseGameData;
   }
@@ -45,44 +47,38 @@ async function getGameData(selectedContentId: string) {
   if (staticSong) {
     const lyrics = await loadJpopSongLyrics(staticSong);
     return {
-      userId: fallbackDemoData.user.id,
+      userId,
       content: buildJpopSongGameContent(staticSong),
       lyrics,
     };
   }
 
   return {
-    userId: fallbackDemoData.user.id,
+    userId,
     content: fallbackDemoData.gameContent,
     lyrics: fallbackDemoData.lyricSyncs,
   };
 }
 
-async function getDatabaseGameData(selectedContentId: string) {
+async function getDatabaseGameData(selectedContentId: string, userId?: string) {
   try {
-    const [user, content] = await Promise.all([
-      prisma.user.findUnique({
-        where: { id: "demo-user-haru" },
-        select: { id: true },
-      }),
-      prisma.content.findUnique({
-        where: { id: selectedContentId },
-        include: {
-          lyricSyncs: {
-            orderBy: {
-              lineIndex: "asc",
-            },
+    const content = await prisma.content.findUnique({
+      where: { id: selectedContentId },
+      include: {
+        lyricSyncs: {
+          orderBy: {
+            lineIndex: "asc",
           },
         },
-      }),
-    ]);
+      },
+    });
 
     if (!content || content.lyricSyncs.length === 0) {
       return null;
     }
 
     return {
-      userId: user?.id ?? fallbackDemoData.user.id,
+      userId,
       content: {
         id: content.id,
         youtubeVideoId: content.youtubeVideoId,

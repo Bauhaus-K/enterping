@@ -145,8 +145,23 @@ export function GamePlayer({
       try {
         if (saveSession) {
           await saveSession(sessionDraft);
+        } else if (userId) {
+          const response = await fetch("/api/game-sessions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              ...sessionDraft,
+              content,
+            }),
+          });
+
+          if (!response.ok && response.status !== 401) {
+            throw new Error(`Session save failed with status ${response.status}`);
+          }
         } else {
-          // simulate save
+          // Keep anonymous practice playable without forcing login.
           await new Promise((resolve) => setTimeout(resolve, 350));
         }
         setSessionSaveState("saved");

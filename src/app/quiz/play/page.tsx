@@ -1,3 +1,4 @@
+import { getCurrentUser } from "../../../lib/auth";
 import { parseQuizCategory } from "../../../lib/quizData";
 import { getPublishedQuizItemsByCategory } from "../../../lib/quizRepository";
 import { QuizBattle } from "./QuizBattle";
@@ -14,11 +15,20 @@ export default async function QuizPlayPage({ searchParams }: QuizPlayPageProps) 
   const category = parseQuizCategory(resolvedSearchParams.category);
   const mode = parseQuizMode(resolvedSearchParams.mode);
   const roomCode = parseRoomCode(resolvedSearchParams.room);
-  const items = await getPublishedQuizItemsByCategory(category);
+  const [items, currentUser] = await Promise.all([
+    getPublishedQuizItemsByCategory(category),
+    getCurrentUser(),
+  ]);
 
   return (
     <main className={styles.page}>
-      <QuizBattle category={category} items={items} mode={mode} roomCode={roomCode} />
+      <QuizBattle
+        category={category}
+        currentUser={currentUser}
+        items={items}
+        mode={mode}
+        roomCode={roomCode}
+      />
     </main>
   );
 }

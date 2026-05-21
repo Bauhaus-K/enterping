@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 
 import { QuizAudioPlayer } from "../../../components/QuizAudioPlayer";
+import type { CurrentUser } from "../../../lib/auth";
 import type { QuizCategory, QuizItem } from "../../../lib/quizData";
 import styles from "./page.module.css";
 
@@ -12,6 +13,7 @@ type QuizMode = "solo" | "battle";
 
 interface QuizBattleProps {
   category: QuizCategory;
+  currentUser: CurrentUser | null;
   items: QuizItem[];
   mode?: QuizMode;
   roomCode?: string;
@@ -28,6 +30,30 @@ interface Rival {
   name: string;
   score: number;
   colorClassName: "orangeDot" | "greenDot" | "blueDot";
+}
+
+interface BattleParticipant {
+  userId: string;
+  username: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  score: number;
+  correctCount: number;
+  wrongCount: number;
+  streak: number;
+  currentQuestionIndex: number;
+  isFinished: boolean;
+  lastSeenAt: string;
+}
+
+interface BattleRoomState {
+  code: string;
+  title: string;
+  category: QuizCategory;
+  status: "OPEN" | "PLAYING" | "FINISHED";
+  maxPlayers: number;
+  participants: BattleParticipant[];
+  updatedAt: string;
 }
 
 const ROUND_SECONDS = 25;
@@ -51,7 +77,7 @@ const SOLO_LOG_LINES: ChatLine[] = [
   { id: "solo-2", user: "hint", text: "정답을 입력하면 다음 문제로 이동합니다.", color: "#35b8aa" },
 ];
 
-export function QuizBattle({ category, items, mode = "solo", roomCode }: QuizBattleProps) {
+export function QuizBattle({ category, currentUser, items, mode = "solo", roomCode }: QuizBattleProps) {
   const isBattleMode = mode === "battle";
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answer, setAnswer] = useState("");
@@ -61,27 +87,196 @@ export function QuizBattle({ category, items, mode = "solo", roomCode }: QuizBat
   const [streak, setStreak] = useState(0);
   const [timeLeft, setTimeLeft] = useState(ROUND_SECONDS);
   const [isFinished, setIsFinished] = useState(false);
+  const [sessionSaved, setSessionSaved] = useState(false);
   const [feedback, setFeedback] = useState("정답을 입력하고 보라색 버튼을 누르세요.");
   const [chatLines, setChatLines] = useState(isBattleMode ? INITIAL_CHAT_LINES : SOLO_LOG_LINES);
+  const [activeRoomCode, setActiveRoomCode] = useState(roomCode);
+  const [battleRoom, setBattleRoom] = useState<BattleRoomState | null>(null);
+  const [battleSyncMessage, setBattleSyncMessage] = useState(
+    isBattleMode ? "대전 방에 연결 중..." : "솔로 연습 중",
+  );
   // 정답이 공개된 문제 (정답·시간초과·스킵 모두 포함). 앨범 아트를 잠시 보여주기 위해 사용.
   const [revealedItem, setRevealedItem] = useState<QuizItem | null>(null);
   const revealTimeoutRef = useRef<number | null>(null);
+  const sessionStartedAtRef = useRef(new Date());
+  const lastBattlePatchRef = useRef("");
 
   const currentItem = items[currentIndex] ?? items[0];
   const modeLabel = `${category === "ANIME" ? "애니" : "JPOP"} ${isBattleMode ? "대전" : "솔로"}`;
   const progressLabel = `${Math.min(currentIndex + 1, items.length)} / ${items.length}`;
-  const visiblePlayers = isBattleMode ? RIVALS : [];
 
   const leaderboard = useMemo(
     () => {
+      if (isBattleMode && battleRoom) {
+        return battleRoom.participants
+          .map((participant) => ({
+            name: participant.displayName ?? participant.username,
+            score: participant.score,
+            userId: participant.userId,
+            colorClassName: "purpleDot" as const,
+          }))
+          .sort((left, right) => right.score - left.score)
+          .map((row, index) => ({ ...row, rank: index + 1 }));
+      }
+
       const rivals = isBattleMode ? RIVALS : [];
 
       return [...rivals, { name: MY_NAME, score, colorClassName: "purpleDot" as const }]
         .sort((left, right) => right.score - left.score)
         .map((row, index) => ({ ...row, rank: index + 1 }));
     },
-    [isBattleMode, score],
+    [battleRoom, isBattleMode, score],
   );
+
+  const playerList = useMemo(() => {
+    if (isBattleMode && battleRoom) {
+      return battleRoom.participants.map((participant, index) => ({
+        id: participant.userId,
+        name: participant.displayName ?? participant.username,
+        colorClassName: getPlayerDotClassName(index),
+        score: participant.score,
+      }));
+    }
+
+    return isBattleMode
+      ? RIVALS.map((rival, index) => ({ id: rival.name, name: rival.name, colorClassName: getPlayerDotClassName(index), score: rival.score }))
+      : [];
+  }, [battleRoom, isBattleMode]);
+
+  useEffect(() => {
+    if (!isBattleMode) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function connectBattleRoom() {
+      if (!currentUser) {
+        setBattleSyncMessage("로그인 후 대전 방을 만들거나 참가할 수 있습니다.");
+        return;
+      }
+
+      const normalizedRoomCode = roomCode?.trim().toUpperCase();
+      const shouldCreateRoom = !normalizedRoomCode || normalizedRoomCode === "CREATE" || normalizedRoomCode.startsWith("NEW-");
+      const url = shouldCreateRoom
+        ? "/api/quiz-battle/rooms"
+        : `/api/quiz-battle/rooms/${encodeURIComponent(normalizedRoomCode)}`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: shouldCreateRoom ? JSON.stringify({ category }) : undefined,
+      });
+
+      if (cancelled) {
+        return;
+      }
+
+      if (!response.ok) {
+        setBattleSyncMessage(response.status === 401 ? "로그인 후 대전에 참가할 수 있습니다." : "대전 방 연결에 실패했습니다.");
+        return;
+      }
+
+      const data = (await response.json()) as { room: BattleRoomState };
+      setBattleRoom(data.room);
+      setActiveRoomCode(data.room.code);
+      setBattleSyncMessage("실시간 점수 동기화 중");
+
+      if (shouldCreateRoom && typeof window !== "undefined") {
+        const nextUrl = `/quiz/play?category=${category}&mode=battle&room=${data.room.code}`;
+        window.history.replaceState(null, "", nextUrl);
+      }
+    }
+
+    connectBattleRoom().catch((error) => {
+      console.error("[Enterping][QuizBattle] Failed to connect battle room", error);
+      if (!cancelled) {
+        setBattleSyncMessage("대전 방 연결 중 오류가 발생했습니다.");
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [category, currentUser, isBattleMode, roomCode]);
+
+  useEffect(() => {
+    if (!isBattleMode || !activeRoomCode || activeRoomCode === "CREATE" || activeRoomCode.startsWith("NEW-")) {
+      return undefined;
+    }
+
+    let cancelled = false;
+    const roomCodeToPoll = activeRoomCode;
+
+    async function pollRoom() {
+      const response = await fetch(`/api/quiz-battle/rooms/${encodeURIComponent(roomCodeToPoll)}`, {
+        cache: "no-store",
+      });
+
+      if (cancelled || !response.ok) {
+        return;
+      }
+
+      const data = (await response.json()) as { room: BattleRoomState };
+      setBattleRoom(data.room);
+    }
+
+    pollRoom().catch(() => undefined);
+    const intervalId = window.setInterval(() => {
+      pollRoom().catch(() => undefined);
+    }, 1500);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [activeRoomCode, isBattleMode]);
+
+  useEffect(() => {
+    if (!isBattleMode || !activeRoomCode || activeRoomCode === "CREATE" || activeRoomCode.startsWith("NEW-")) {
+      return;
+    }
+
+    const payload = {
+      score,
+      correctCount,
+      wrongCount,
+      streak,
+      currentQuestionIndex: currentIndex,
+      isFinished,
+    };
+    const serializedPayload = JSON.stringify(payload);
+
+    if (lastBattlePatchRef.current === serializedPayload) {
+      return;
+    }
+
+    lastBattlePatchRef.current = serializedPayload;
+
+    const timeoutId = window.setTimeout(() => {
+      fetch(`/api/quiz-battle/rooms/${encodeURIComponent(activeRoomCode)}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: serializedPayload,
+      })
+        .then(async (response) => {
+          if (!response.ok) {
+            return;
+          }
+
+          const data = (await response.json()) as { room: BattleRoomState };
+          setBattleRoom(data.room);
+        })
+        .catch((error) => {
+          console.error("[Enterping][QuizBattle] Failed to sync battle score", error);
+        });
+    }, 220);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [activeRoomCode, correctCount, currentIndex, isBattleMode, isFinished, score, streak, wrongCount]);
 
   useEffect(() => {
     if (isFinished || !currentItem || revealedItem) {
@@ -103,6 +298,68 @@ export function QuizBattle({ category, items, mode = "solo", roomCode }: QuizBat
       window.clearInterval(timerId);
     };
   }, [currentIndex, currentItem, isFinished, revealedItem]);
+
+  useEffect(() => {
+    if (!isFinished || sessionSaved) {
+      return;
+    }
+
+    setSessionSaved(true);
+
+    const endedAt = new Date();
+    const totalQuestions = Math.max(items.length, 1);
+    const accuracy = Math.round((correctCount / totalQuestions) * 10_000) / 100;
+    const contentId = `quiz-${category.toLowerCase()}`;
+    const contentTitle = category === "ANIME" ? "애니메이션 퀴즈" : "JPOP 퀴즈";
+
+    fetch("/api/game-sessions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contentId,
+        content: {
+          id: contentId,
+          title: contentTitle,
+          artist: "Enterping Quiz",
+          category,
+          youtubeVideoId: items[0]?.audioSnippet?.youtubeVideoId ?? `enterping-${contentId}`,
+          thumbnailUrl: items[0]?.thumbnailUrl ?? null,
+        },
+        gameMode: "LISTEN_AND_GUESS",
+        inputMode: "ROMAJI",
+        score,
+        accuracy,
+        strokesPerMinute: 0,
+        wordsPerMinute: 0,
+        totalStrokes: correctCount + wrongCount,
+        correctStrokes: correctCount,
+        incorrectStrokes: wrongCount,
+        playtimeMs: Math.max(endedAt.getTime() - sessionStartedAtRef.current.getTime(), 0),
+        startedAt: sessionStartedAtRef.current.toISOString(),
+        endedAt: endedAt.toISOString(),
+        typoLogs: [],
+      }),
+    })
+      .then((response) => {
+        if (!response.ok && response.status !== 401) {
+          throw new Error(`Quiz session save failed with status ${response.status}`);
+        }
+
+        if (response.status === 401) {
+          setFeedback("라운드 완료! 로그인하면 기록이 프로필과 랭킹에 저장됩니다.");
+          return;
+        }
+
+        setFeedback("라운드 완료! 기록이 프로필에 저장되었습니다.");
+      })
+      .catch((error) => {
+        console.error("[Enterping][Quiz] Failed to save quiz session", error);
+        setFeedback("라운드 완료! 기록 저장 중 오류가 발생했습니다.");
+        setSessionSaved(false);
+      });
+  }, [category, correctCount, isFinished, items, score, sessionSaved, wrongCount]);
 
   if (!currentItem) {
     return (
@@ -220,9 +477,11 @@ export function QuizBattle({ category, items, mode = "solo", roomCode }: QuizBat
     setStreak(0);
     setTimeLeft(ROUND_SECONDS);
     setIsFinished(false);
+    setSessionSaved(false);
     setFeedback("새 게임을 시작했습니다.");
     setChatLines(isBattleMode ? INITIAL_CHAT_LINES : SOLO_LOG_LINES);
     setRevealedItem(null);
+    sessionStartedAtRef.current = new Date();
   }
 
   useEffect(() => {
@@ -325,7 +584,10 @@ export function QuizBattle({ category, items, mode = "solo", roomCode }: QuizBat
         <div className={styles.panelLabel}>{isBattleMode ? "실시간 순위" : "개인 기록"}</div>
         <ol className={styles.rankList}>
           {leaderboard.map((row) => (
-            <li className={row.name === MY_NAME ? styles.myRank : undefined} key={row.name}>
+            <li
+              className={getLeaderboardUserId(row) === currentUser?.id ? styles.myRank : undefined}
+              key={getLeaderboardUserId(row) ?? row.name}
+            >
               <span>{row.rank}</span>
               <strong>{row.name}</strong>
               <em>{row.score}</em>
@@ -370,15 +632,17 @@ export function QuizBattle({ category, items, mode = "solo", roomCode }: QuizBat
         <div className={styles.modeTitle}>모드: {modeLabel}</div>
         <div className={styles.modeDivider} />
         <div className={styles.modeMeta}>
-          {isBattleMode ? <span>방 코드: {roomCode ?? "PUBLIC"}</span> : <span>집중 연습: ON</span>}
+          {isBattleMode ? <span>방 코드: {activeRoomCode ?? "연결 중"}</span> : <span>집중 연습: ON</span>}
+          {isBattleMode ? <span>{battleSyncMessage}</span> : null}
           <span>문제: {progressLabel}</span>
           <span>콤보: {streak}</span>
         </div>
         <ul className={styles.playerList}>
-          {visiblePlayers.map((rival) => (
-            <li key={rival.name}>
-              <span className={styles[rival.colorClassName]} />
-              {rival.name}
+          {playerList.map((player) => (
+            <li key={player.id}>
+              <span className={styles[player.colorClassName]} />
+              {player.name}
+              {isBattleMode ? <em>{player.score}</em> : null}
             </li>
           ))}
           <li>
@@ -389,6 +653,20 @@ export function QuizBattle({ category, items, mode = "solo", roomCode }: QuizBat
       </aside>
     </section>
   );
+}
+
+function getPlayerDotClassName(index: number): "orangeDot" | "greenDot" | "blueDot" | "purpleDot" {
+  const classNames = ["orangeDot", "greenDot", "blueDot", "purpleDot"] as const;
+  return classNames[index % classNames.length];
+}
+
+function getLeaderboardUserId(row: unknown): string | undefined {
+  if (typeof row !== "object" || row === null || !("userId" in row)) {
+    return undefined;
+  }
+
+  const userId = (row as { userId?: unknown }).userId;
+  return typeof userId === "string" ? userId : undefined;
 }
 
 function normalizeAnswer(value: string): string {

@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, type ChangeEvent, type CompositionEvent, type CSSProperties, type ReactNode } from "react";
-import { useGameStore } from "./useGameStore";
+import { PLAYER_STATE, useGameStore } from "./useGameStore";
 import { TypingInputMode, validateInput, InputValidationState, type ValidateInputResult } from "../../lib/typingEngine";
 import type { GamePlayerLyricSync } from "./types";
 import styles from "../GamePlayer.module.css";
@@ -26,7 +26,7 @@ export function TypingPanel({ lyrics, inputMode, onCorrectLyric, onValidationCha
     completedLyricId,
     setCompletedLyricId,
     applyInput,
-    currentTimestampMs,
+    setPlayerState,
   } = useGameStore();
 
   const getVisibleLyrics = () => {
@@ -69,15 +69,24 @@ export function TypingPanel({ lyrics, inputMode, onCorrectLyric, onValidationCha
     ) {
       setCompletedLyricId(activeTypingLyric.id);
       onCorrectLyric?.(activeTypingLyric, userInput);
+
+      const sortedLyrics = [...lyrics].sort((left, right) => left.startMs - right.startMs);
+      const lastLyric = sortedLyrics[sortedLyrics.length - 1];
+
+      if (lastLyric?.id === activeTypingLyric.id) {
+        setPlayerState(PLAYER_STATE.ENDED);
+      }
     }
   }, [
     activeTypingLyric,
+    lyrics,
     userInput,
     onCorrectLyric,
     onValidationChange,
     validationResult?.state,
     completedLyricId,
     setCompletedLyricId,
+    setPlayerState,
   ]);
 
   const displayLyric = activeTypingLyric;

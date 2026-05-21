@@ -1,7 +1,10 @@
 import Link from "next/link";
 
+import { getOpenQuizBattleRooms } from "../../lib/quizBattle";
 import type { QuizCategory } from "../../lib/quizData";
 import styles from "./page.module.css";
+
+export const dynamic = "force-dynamic";
 
 const QUIZ_CATEGORIES: Array<{
   id: QuizCategory;
@@ -26,37 +29,9 @@ const QUIZ_CATEGORIES: Array<{
   },
 ];
 
-const BATTLE_ROOMS: Array<{
-  code: string;
-  title: string;
-  category: QuizCategory;
-  host: string;
-  players: string;
-}> = [
-  {
-    code: "JP-428",
-    title: "JPOP 빠른 대전",
-    category: "JPOP",
-    host: "user1",
-    players: "3 / 4",
-  },
-  {
-    code: "AN-105",
-    title: "애니 명대사 방",
-    category: "ANIME",
-    host: "user2",
-    players: "2 / 4",
-  },
-  {
-    code: "JP-777",
-    title: "신곡 맞히기",
-    category: "JPOP",
-    host: "mailron",
-    players: "1 / 4",
-  },
-];
+export default async function QuizPage() {
+  const battleRooms = await getOpenQuizBattleRooms();
 
-export default function QuizPage() {
   return (
     <main className={styles.page}>
       <section className={styles.hero}>
@@ -109,7 +84,7 @@ export default function QuizPage() {
             <div className={styles.createActions}>
               {QUIZ_CATEGORIES.map((category) => (
                 <Link
-                  href={`/quiz/play?category=${category.id}&mode=battle&room=NEW-${category.id}`}
+                  href={`/quiz/play?category=${category.id}&mode=battle&room=CREATE`}
                   key={category.id}
                 >
                   {category.title} 방 만들기
@@ -145,22 +120,31 @@ export default function QuizPage() {
             <span className={styles.cardBadge}>방 리스트</span>
             <h3>현재 열린 방</h3>
             <div className={styles.roomList}>
-              {BATTLE_ROOMS.map((room) => (
-                <Link
-                  className={styles.roomItem}
-                  href={`/quiz/play?category=${room.category}&mode=battle&room=${room.code}`}
-                  key={room.code}
-                >
-                  <div>
-                    <strong>{room.title}</strong>
-                    <span>
-                      {room.category} · 방장 {room.host}
-                    </span>
-                  </div>
-                  <em>{room.players}</em>
-                  <i>{room.code}</i>
-                </Link>
-              ))}
+              {battleRooms.length > 0 ? (
+                battleRooms.map((room) => (
+                  <Link
+                    className={styles.roomItem}
+                    href={`/quiz/play?category=${room.category}&mode=battle&room=${room.code}`}
+                    key={room.code}
+                  >
+                    <div>
+                      <strong>{room.title}</strong>
+                      <span>
+                        {room.category} · 방장 {room.host?.displayName ?? room.host?.username ?? "unknown"}
+                      </span>
+                    </div>
+                    <em>
+                      {room.participants.length} / {room.maxPlayers}
+                    </em>
+                    <i>{room.code}</i>
+                  </Link>
+                ))
+              ) : (
+                <div className={styles.emptyRoomList}>
+                  <strong>현재 열린 방이 없습니다</strong>
+                  <span>새 대전 방을 만들고 첫 참가자를 기다려보세요.</span>
+                </div>
+              )}
             </div>
           </article>
         </div>

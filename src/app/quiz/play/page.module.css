@@ -540,6 +540,15 @@
   font-weight: 900;
 }
 
+.playerList em {
+  margin-left: auto;
+  color: var(--purple);
+  font-size: 0.84rem;
+  font-style: normal;
+  font-weight: 1000;
+  font-variant-numeric: tabular-nums;
+}
+
 .orangeDot,
 .greenDot,
 .blueDot,
