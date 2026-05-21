@@ -258,14 +258,39 @@
   }
 
   .hero {
-    margin-top: 44px;
+    margin: 38px auto 28px;
+    padding: 0 16px;
+    text-align: left;
   }
 
   .hero h1 {
-    font-size: 2.35rem;
+    font-size: clamp(2.15rem, 11vw, 2.8rem);
+  }
+
+  .hero p {
+    font-size: 0.94rem;
   }
 
   .stageGrid {
     grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 0 14px 52px;
+  }
+
+  .stageCard {
+    border-radius: 22px;
+  }
+
+  .thumbnail {
+    min-height: 176px;
+  }
+
+  .cardBody {
+    padding: 16px;
+  }
+
+  .selectButton,
+  .disabledButton {
+    min-height: 48px;
   }
 }

@@ -574,14 +574,15 @@
   .shell {
     grid-template-columns: 1fr;
     grid-template-areas:
-      "stats"
       "video"
-      "info"
       "typing"
+      "stats"
+      "info"
       "mode"
       "empty";
     width: min(100%, 560px);
     padding: 16px;
+    gap: 14px;
   }
 
   .statsPanel,
@@ -594,6 +595,99 @@
   }
 
   .emptyPanel {
-    min-height: 120px;
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .shell {
+    width: 100%;
+    padding: 10px;
+    border-radius: 22px;
+    box-shadow: 0 14px 34px rgba(23, 32, 51, 0.14);
+  }
+
+  .statsPanel,
+  .videoPanel,
+  .infoPanel,
+  .typingPanel,
+  .modePanel {
+    border-width: 1px;
+    border-radius: 16px;
+  }
+
+  .statsPanel {
+    padding: 46px 10px 12px;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .statsGrid article {
+    grid-template-rows: 28px 42px;
+  }
+
+  .statsGrid span {
+    font-size: 0.72rem;
+  }
+
+  .statsGrid strong {
+    font-size: 1.05rem;
+  }
+
+  .videoFrame,
+  .videoPanel {
+    min-height: 206px;
+  }
+
+  .infoPanel {
+    padding: 38px 14px 14px;
+  }
+
+  .infoDecor {
+    display: none;
+  }
+
+  .typingPanel {
+    padding: 8px;
+  }
+
+  .currentLyricCard {
+    padding: 18px 14px 14px;
+    border-radius: 14px;
+  }
+
+  .romajiLine {
+    font-size: clamp(1.18rem, 7vw, 1.45rem);
+    line-height: 1.28;
+  }
+
+  .japaneseLine {
+    font-size: clamp(0.95rem, 4.8vw, 1.08rem);
+  }
+
+  .queueLyricCard {
+    padding: 10px 12px;
+  }
+
+  .queueLyricCard .queueGuideText,
+  .queueLyricCard .queueLyricText {
+    white-space: normal;
+  }
+
+  .modePanel {
+    padding: 16px 14px;
+  }
+
+  .modeTitle {
+    font-size: 1.32rem;
+  }
+
+  .panelLabel {
+    min-height: 25px;
+    padding: 4px 10px 1px;
+    font-size: 0.82rem;
   }
 }

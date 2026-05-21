@@ -571,18 +571,69 @@
 }
 
 @media (max-width: 560px) {
+  .page::before {
+    top: 0;
+    height: 120px;
+  }
+
   .hero {
     width: min(100% - 28px, 1160px);
-    padding: 32px 0 48px;
+    padding: 28px 0 44px;
+    text-align: left;
+  }
+
+  .badge {
+    max-width: 100%;
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
   }
 
   .hero h1 {
-    font-size: 2.8rem;
+    margin-top: 18px;
+    font-size: clamp(2.55rem, 14vw, 3.4rem);
+    line-height: 0.98;
+  }
+
+  .hero p {
+    margin: 0;
+    font-size: 0.96rem;
+    line-height: 1.65;
+  }
+
+  .ctaRow,
+  .stats {
+    justify-content: stretch;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 28px;
+  }
+
+  .stats div {
+    min-width: 0;
+    padding: 12px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.07);
+    text-align: center;
+  }
+
+  .stats dt {
+    font-size: 1.28rem;
+  }
+
+  .stats dd {
+    font-size: 0.68rem;
   }
 
   .primaryCta,
   .secondaryCta {
     width: 100%;
+    min-width: 0;
+    height: 50px;
   }
 
   .previewWrap {
@@ -604,7 +655,13 @@
   }
 
   .catalogHeader h2 {
-    font-size: clamp(1.6rem, 7vw, 2rem);
+    font-size: clamp(1.42rem, 6.2vw, 1.85rem);
+    white-space: normal;
+    word-break: keep-all;
+  }
+
+  .catalogHeader p {
+    font-size: 0.92rem;
   }
 
   .songGrid {

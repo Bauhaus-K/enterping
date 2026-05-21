@@ -605,14 +605,15 @@
   .quizShell {
     grid-template-columns: 1fr;
     grid-template-areas:
-      "stats"
       "question"
+      "chat"
+      "stats"
       "work"
       "rank"
-      "chat"
       "mode";
     width: min(100%, 560px);
     padding: 16px;
+    gap: 14px;
   }
 
   .statsPanel,
@@ -622,5 +623,113 @@
   .chatPanel,
   .modePanel {
     min-height: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding: 14px 10px 34px;
+  }
+
+  .quizShell {
+    width: 100%;
+    padding: 10px;
+    border-radius: 22px;
+  }
+
+  .statsPanel,
+  .questionPanel,
+  .workPanel,
+  .rankPanel,
+  .chatPanel,
+  .modePanel {
+    border-width: 1px;
+    border-radius: 16px;
+  }
+
+  .statsPanel {
+    padding: 42px 10px 12px;
+  }
+
+  .quizStats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .quizStats article {
+    grid-template-rows: 28px 40px;
+  }
+
+  .quizStats span {
+    font-size: 0.68rem;
+  }
+
+  .quizStats strong {
+    font-size: 1.02rem;
+  }
+
+  .questionPanel {
+    min-height: 232px;
+    padding: 18px 12px;
+  }
+
+  .questionCircle {
+    width: 118px;
+    height: 118px;
+  }
+
+  .questionPanel p {
+    font-size: 1.08rem;
+  }
+
+  .clueText {
+    font-size: 0.88rem;
+  }
+
+  .workPanel,
+  .modePanel {
+    padding: 40px 14px 14px;
+  }
+
+  .chatPanel {
+    grid-template-rows: auto minmax(126px, 1fr) 54px auto;
+    padding: 10px;
+  }
+
+  .answerLog {
+    padding: 20px 12px 12px;
+  }
+
+  .answerLog p {
+    font-size: 1rem;
+  }
+
+  .answerForm {
+    grid-template-columns: 1fr 44px;
+  }
+
+  .answerForm input {
+    height: 52px;
+    padding: 0 14px;
+    font-size: 1rem;
+  }
+
+  .answerForm button {
+    width: 34px;
+    height: 34px;
+  }
+
+  .rankList li {
+    min-height: 36px;
+  }
+
+  .modeTitle {
+    font-size: 1.28rem;
+  }
+
+  .panelLabel {
+    min-height: 25px;
+    padding: 4px 10px 1px;
+    font-size: 0.82rem;
   }
 }

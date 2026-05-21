@@ -552,9 +552,75 @@
     border-radius: 24px;
   }
 
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    text-align: left;
+  }
+
+  .avatar {
+    width: 74px;
+    height: 74px;
+    border-radius: 22px;
+    font-size: 2rem;
+  }
+
+  .heroCopy h1 {
+    font-size: clamp(2rem, 11vw, 2.8rem);
+  }
+
+  .heroCopy p,
+  .panelHeader p {
+    font-size: 0.9rem;
+  }
+
   .heroStats,
   .attendanceTrack,
   .historyItem dl {
     grid-template-columns: 1fr;
+  }
+
+  .metricCard {
+    min-height: 76px;
+    padding: 14px;
+  }
+
+  .panelHeader {
+    gap: 10px;
+  }
+
+  .badgeCard {
+    grid-template-columns: 52px 1fr;
+    padding: 14px;
+  }
+
+  .badgeIcon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+  }
+
+  .streakCard strong {
+    font-size: 3.2rem;
+  }
+
+  .checkInBox button {
+    min-height: 48px;
+  }
+
+  .historyItem {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .historyThumb {
+    width: 100%;
+    height: 132px;
+  }
+
+  .skillCard,
+  .rewardGoalCard {
+    padding: 16px;
+    border-radius: 22px;
   }
 }
