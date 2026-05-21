@@ -199,11 +199,11 @@ export const QUIZ_ITEMS: QuizItem[] = [
     tags: ["Anime", "Character", "Classic"],
     difficulty: 1,
     audioSnippet: {
-      youtubeVideoId: "p1bjnyDqI9k",
+      youtubeVideoId: "PNCl4zwRtt8",
       startSeconds: 10,
       durationSeconds: 6,
     },
-    thumbnailUrl: "https://i.ytimg.com/vi/p1bjnyDqI9k/hqdefault.jpg",
+    thumbnailUrl: "https://i.ytimg.com/vi/PNCl4zwRtt8/hqdefault.jpg",
     revealImageUrl: "https://upload.wikimedia.org/wikipedia/en/9/9c/Doraemon_character.png",
   },
   {
@@ -218,11 +218,11 @@ export const QUIZ_ITEMS: QuizItem[] = [
     tags: ["Anime", "Shonen", "Ninja"],
     difficulty: 2,
     audioSnippet: {
-      youtubeVideoId: "SRn99oN1p_c",
+      youtubeVideoId: "hIwGBOexa5w",
       startSeconds: 15,
       durationSeconds: 6,
     },
-    thumbnailUrl: "https://i.ytimg.com/vi/SRn99oN1p_c/hqdefault.jpg",
+    thumbnailUrl: "https://i.ytimg.com/vi/hIwGBOexa5w/hqdefault.jpg",
     revealImageUrl: "https://upload.wikimedia.org/wikipedia/en/9/94/NarutoCoverTankobon1.jpg",
   },
   {
@@ -237,11 +237,11 @@ export const QUIZ_ITEMS: QuizItem[] = [
     tags: ["Anime", "Demon", "Sword"],
     difficulty: 2,
     audioSnippet: {
-      youtubeVideoId: "ucIVYK_v5MI",
+      youtubeVideoId: "TkN0MKzriTY",
       startSeconds: 12,
       durationSeconds: 6,
     },
-    thumbnailUrl: "https://i.ytimg.com/vi/ucIVYK_v5MI/hqdefault.jpg",
+    thumbnailUrl: "https://i.ytimg.com/vi/TkN0MKzriTY/hqdefault.jpg",
     revealImageUrl: "https://upload.wikimedia.org/wikipedia/en/0/09/Kimetsu_no_Yaiba_volume_1.jpg",
   },
   {
@@ -256,11 +256,11 @@ export const QUIZ_ITEMS: QuizItem[] = [
     tags: ["Anime", "Adventure", "Pirate"],
     difficulty: 2,
     audioSnippet: {
-      youtubeVideoId: "lJ-CL3RPyZ4",
+      youtubeVideoId: "YoeP9w5UIlg",
       startSeconds: 18,
       durationSeconds: 6,
     },
-    thumbnailUrl: "https://i.ytimg.com/vi/lJ-CL3RPyZ4/hqdefault.jpg",
+    thumbnailUrl: "https://i.ytimg.com/vi/YoeP9w5UIlg/hqdefault.jpg",
     revealImageUrl: "https://upload.wikimedia.org/wikipedia/en/9/90/One_Piece%2C_Volume_61_Cover_%28Japanese%29.jpg",
   },
   {
@@ -275,11 +275,11 @@ export const QUIZ_ITEMS: QuizItem[] = [
     tags: ["Anime", "Character", "Comedy"],
     difficulty: 3,
     audioSnippet: {
-      youtubeVideoId: "h6QImWPwJTk",
+      youtubeVideoId: "U_rWZK_8vUY",
       startSeconds: 20,
       durationSeconds: 6,
     },
-    thumbnailUrl: "https://i.ytimg.com/vi/h6QImWPwJTk/hqdefault.jpg",
+    thumbnailUrl: "https://i.ytimg.com/vi/U_rWZK_8vUY/hqdefault.jpg",
     revealImageUrl: "https://upload.wikimedia.org/wikipedia/en/d/d4/Spy_%C3%97_Family%2C_volume_1.jpg",
   },
 ];
