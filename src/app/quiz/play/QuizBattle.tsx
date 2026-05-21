@@ -8,10 +8,13 @@ import type { QuizCategory, QuizItem } from "../../../lib/quizData";
 import styles from "./page.module.css";
 
 const REVEAL_DURATION_MS = 1800;
+type QuizMode = "solo" | "battle";
 
 interface QuizBattleProps {
   category: QuizCategory;
   items: QuizItem[];
+  mode?: QuizMode;
+  roomCode?: string;
 }
 
 interface ChatLine {
@@ -43,7 +46,13 @@ const INITIAL_CHAT_LINES: ChatLine[] = [
   { id: "chat-4", user: "わたし", text: "準備OK", color: "#8057e8" },
 ];
 
-export function QuizBattle({ category, items }: QuizBattleProps) {
+const SOLO_LOG_LINES: ChatLine[] = [
+  { id: "solo-1", user: "system", text: "솔로 모드가 시작되었습니다.", color: "#8057e8" },
+  { id: "solo-2", user: "hint", text: "정답을 입력하면 다음 문제로 이동합니다.", color: "#35b8aa" },
+];
+
+export function QuizBattle({ category, items, mode = "solo", roomCode }: QuizBattleProps) {
+  const isBattleMode = mode === "battle";
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [correctCount, setCorrectCount] = useState(0);
@@ -53,21 +62,25 @@ export function QuizBattle({ category, items }: QuizBattleProps) {
   const [timeLeft, setTimeLeft] = useState(ROUND_SECONDS);
   const [isFinished, setIsFinished] = useState(false);
   const [feedback, setFeedback] = useState("정답을 입력하고 보라색 버튼을 누르세요.");
-  const [chatLines, setChatLines] = useState(INITIAL_CHAT_LINES);
+  const [chatLines, setChatLines] = useState(isBattleMode ? INITIAL_CHAT_LINES : SOLO_LOG_LINES);
   // 정답이 공개된 문제 (정답·시간초과·스킵 모두 포함). 앨범 아트를 잠시 보여주기 위해 사용.
   const [revealedItem, setRevealedItem] = useState<QuizItem | null>(null);
   const revealTimeoutRef = useRef<number | null>(null);
 
   const currentItem = items[currentIndex] ?? items[0];
-  const modeLabel = category === "ANIME" ? "애니 대전" : "JPOP 대전";
+  const modeLabel = `${category === "ANIME" ? "애니" : "JPOP"} ${isBattleMode ? "대전" : "솔로"}`;
   const progressLabel = `${Math.min(currentIndex + 1, items.length)} / ${items.length}`;
+  const visiblePlayers = isBattleMode ? RIVALS : [];
 
   const leaderboard = useMemo(
-    () =>
-      [...RIVALS, { name: MY_NAME, score, colorClassName: "purpleDot" as const }]
+    () => {
+      const rivals = isBattleMode ? RIVALS : [];
+
+      return [...rivals, { name: MY_NAME, score, colorClassName: "purpleDot" as const }]
         .sort((left, right) => right.score - left.score)
-        .map((row, index) => ({ ...row, rank: index + 1 })),
-    [score],
+        .map((row, index) => ({ ...row, rank: index + 1 }));
+    },
+    [isBattleMode, score],
   );
 
   useEffect(() => {
@@ -130,14 +143,14 @@ export function QuizBattle({ category, items }: QuizBattleProps) {
       setScore((previousScore) => previousScore + gainedScore);
       setStreak((previousStreak) => previousStreak + 1);
       setFeedback(`정답! +${gainedScore}점: ${currentItem.answer}`);
-      pushChatLine("わたし", `${trimmedAnswer} 正解!`, "#8057e8");
+      pushChatLine(isBattleMode ? "わたし" : "정답", `${trimmedAnswer} 正解!`, "#8057e8");
       revealAndAdvance(currentItem);
     } else {
       setWrongCount((previousCount) => previousCount + 1);
       setScore((previousScore) => Math.max(0, previousScore - 20));
       setStreak(0);
       setFeedback("오답입니다. 힌트를 보고 다시 입력해 보세요.");
-      pushChatLine("わたし", `${trimmedAnswer} ...?`, "#6b7280");
+      pushChatLine(isBattleMode ? "わたし" : "오답", `${trimmedAnswer} ...?`, "#6b7280");
     }
 
     setAnswer("");
@@ -208,7 +221,7 @@ export function QuizBattle({ category, items }: QuizBattleProps) {
     setTimeLeft(ROUND_SECONDS);
     setIsFinished(false);
     setFeedback("새 게임을 시작했습니다.");
-    setChatLines(INITIAL_CHAT_LINES);
+    setChatLines(isBattleMode ? INITIAL_CHAT_LINES : SOLO_LOG_LINES);
     setRevealedItem(null);
   }
 
@@ -309,7 +322,7 @@ export function QuizBattle({ category, items }: QuizBattleProps) {
       </aside>
 
       <aside className={styles.rankPanel}>
-        <div className={styles.panelLabel}>실시간 순위</div>
+        <div className={styles.panelLabel}>{isBattleMode ? "실시간 순위" : "개인 기록"}</div>
         <ol className={styles.rankList}>
           {leaderboard.map((row) => (
             <li className={row.name === MY_NAME ? styles.myRank : undefined} key={row.name}>
@@ -322,6 +335,9 @@ export function QuizBattle({ category, items }: QuizBattleProps) {
       </aside>
 
       <main className={styles.chatPanel}>
+        <div className={styles.chatHeader}>
+          {isBattleMode ? "대전 채팅" : "플레이 로그"}
+        </div>
         <div className={styles.answerLog}>
           {chatLines.map((line) => (
             <p key={line.id} style={{ color: line.color }}>
@@ -354,11 +370,12 @@ export function QuizBattle({ category, items }: QuizBattleProps) {
         <div className={styles.modeTitle}>모드: {modeLabel}</div>
         <div className={styles.modeDivider} />
         <div className={styles.modeMeta}>
+          {isBattleMode ? <span>방 코드: {roomCode ?? "PUBLIC"}</span> : <span>집중 연습: ON</span>}
           <span>문제: {progressLabel}</span>
           <span>콤보: {streak}</span>
         </div>
         <ul className={styles.playerList}>
-          {RIVALS.map((rival) => (
+          {visiblePlayers.map((rival) => (
             <li key={rival.name}>
               <span className={styles[rival.colorClassName]} />
               {rival.name}

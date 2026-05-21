@@ -11,99 +11,16 @@
   font-family: "Pretendard", "Noto Sans KR", "Noto Sans JP", sans-serif;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  height: 52px;
-  padding: 0 40px 0 22px;
-}
-
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: #ffffff;
-  text-decoration: none;
-}
-
-.brand strong {
-  font-size: 1.05rem;
-}
-
-.logoMark {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  overflow: hidden;
-  border: 2px solid #e7eef8;
-  border-radius: 999px;
-  background:
-    linear-gradient(#ee5b59 0 48%, transparent 49%),
-    repeating-linear-gradient(0deg, #f7f7f7 0 3px, #1d2634 3px 6px);
-}
-
-.logoMark::before,
-.logoMark::after,
-.logoMark span {
-  position: absolute;
-  content: "";
-  background: #111827;
-}
-
-.logoMark::before {
-  top: 13px;
-  width: 100%;
-  height: 2px;
-}
-
-.logoMark::after {
-  top: 11px;
-  width: 4px;
-  height: 4px;
-  border-radius: 999px;
-}
-
-.logoMark span {
-  bottom: 4px;
-  width: 18px;
-  height: 2px;
-}
-
-.nav {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.nav a {
-  display: inline-flex;
-  align-items: center;
-  height: 32px;
-  padding: 0 14px;
-  color: #c5ccd9;
-  border-radius: 8px;
-  font-size: 0.88rem;
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.nav .activeNavItem {
-  color: #ff496b;
-  background: #fff2f4;
-}
-
 .hero {
-  max-width: 880px;
-  margin: 74px auto 34px;
-  padding: 0 24px;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 86px 24px 34px;
   text-align: center;
 }
 
-.hero span {
+.hero span,
+.sectionHeading span,
+.cardBadge {
   display: inline-flex;
   min-height: 28px;
   align-items: center;
@@ -119,13 +36,14 @@
 .hero h1 {
   margin: 22px 0 14px;
   color: #ffffff;
-  font-size: clamp(2.6rem, 7vw, 4.8rem);
+  font-size: clamp(2.5rem, 6vw, 4.7rem);
   font-weight: 1000;
-  line-height: 1.02;
+  line-height: 1.04;
+  letter-spacing: -0.07em;
 }
 
 .hero p {
-  max-width: 620px;
+  max-width: 680px;
   margin: 0 auto;
   color: #c5ccd7;
   font-size: 1rem;
@@ -133,20 +51,49 @@
   line-height: 1.7;
 }
 
+.modeSection,
+.battleSection {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.battleSection {
+  padding-bottom: 88px;
+}
+
+.sectionHeading {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.sectionHeading h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 1000;
+  letter-spacing: -0.06em;
+}
+
+.sectionHeading p {
+  max-width: 650px;
+  margin: 0;
+  color: #c5ccd7;
+  font-weight: 700;
+  line-height: 1.7;
+}
+
 .categoryGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 22px;
-  max-width: 940px;
-  margin: 0 auto;
-  padding: 0 24px 72px;
 }
 
-.categoryCard {
+.categoryCard,
+.lobbyCard {
   position: relative;
   overflow: hidden;
-  min-height: 310px;
-  padding: 28px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 28px;
   color: #ffffff;
@@ -157,6 +104,11 @@
   text-decoration: none;
 }
 
+.categoryCard {
+  min-height: 288px;
+  padding: 28px;
+}
+
 .categoryCard span {
   color: #ff9aad;
   font-size: 0.78rem;
@@ -164,13 +116,15 @@
   letter-spacing: 0.08em;
 }
 
-.categoryCard h2 {
+.categoryCard h3 {
   margin: 16px 0 12px;
   font-size: 3rem;
   line-height: 1;
+  letter-spacing: -0.05em;
 }
 
-.categoryCard p {
+.categoryCard p,
+.lobbyCard p {
   margin: 0;
   color: #cbd5e1;
   font-size: 1rem;
@@ -197,18 +151,153 @@
   font-weight: 950;
 }
 
-@media (max-width: 760px) {
-  .header {
-    flex-wrap: wrap;
-    height: auto;
-    padding: 16px;
-  }
+.battleGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
 
-  .nav {
-    width: 100%;
-  }
+.lobbyCard {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  min-height: 260px;
+  padding: 24px;
+}
 
-  .categoryGrid {
+.lobbyCard h3 {
+  margin: 14px 0 10px;
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 1000;
+  letter-spacing: -0.04em;
+}
+
+.roomListCard {
+  grid-column: 1 / -1;
+}
+
+.createActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.createActions a,
+.joinForm button,
+.roomItem {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  text-decoration: none;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.createActions a {
+  display: grid;
+  min-height: 54px;
+  place-items: center;
+  border-radius: 18px;
+  font-weight: 950;
+}
+
+.createActions a:hover,
+.joinForm button:hover,
+.roomItem:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 112, 139, 0.56);
+  background: rgba(255, 73, 107, 0.18);
+}
+
+.joinForm {
+  display: grid;
+  gap: 12px;
+}
+
+.joinForm label {
+  display: grid;
+  gap: 7px;
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  font-weight: 900;
+}
+
+.joinForm input,
+.joinForm select {
+  width: 100%;
+  min-height: 46px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 15px;
+  color: #ffffff;
+  background: rgba(15, 23, 42, 0.72);
+  font: inherit;
+  font-weight: 850;
+  outline: 0;
+  padding: 0 14px;
+}
+
+.joinForm button {
+  min-height: 50px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff496b, #ff7a90);
+  font: inherit;
+  font-weight: 1000;
+  cursor: pointer;
+}
+
+.roomList {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.roomItem {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  min-height: 98px;
+  align-items: center;
+  padding: 16px;
+  border-radius: 20px;
+}
+
+.roomItem strong,
+.roomItem span,
+.roomItem em,
+.roomItem i {
+  display: block;
+}
+
+.roomItem strong {
+  margin-bottom: 6px;
+  font-size: 1rem;
+  font-weight: 1000;
+}
+
+.roomItem span,
+.roomItem i {
+  color: #cbd5e1;
+  font-size: 0.83rem;
+  font-weight: 800;
+}
+
+.roomItem em {
+  color: #ffccd5;
+  font-style: normal;
+  font-weight: 1000;
+}
+
+.roomItem i {
+  grid-column: 1 / -1;
+  font-style: normal;
+}
+
+@media (max-width: 860px) {
+  .categoryGrid,
+  .battleGrid,
+  .createActions,
+  .roomList {
     grid-template-columns: 1fr;
   }
 }

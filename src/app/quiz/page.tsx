@@ -1,45 +1,169 @@
 import Link from "next/link";
 
+import type { QuizCategory } from "../../lib/quizData";
 import styles from "./page.module.css";
 
-const QUIZ_CATEGORIES = [
+const QUIZ_CATEGORIES: Array<{
+  id: QuizCategory;
+  title: string;
+  eyebrow: string;
+  description: string;
+  stats: string;
+}> = [
   {
     id: "JPOP",
     title: "JPOP",
     eyebrow: "Listen & Guess",
     description: "노래 일부를 듣거나 힌트를 보고 곡명, 아티스트를 맞히는 퀴즈입니다.",
-    href: "/quiz/play?category=JPOP",
     stats: "곡명 / 아티스트 / 가사 힌트",
   },
   {
     id: "ANIME",
     title: "애니메이션",
     eyebrow: "Character & Title",
-    description: "애니메이션 작품명, 캐릭터 이름, 명대사 힌트를 맞히는 퀴즈입니다.",
-    href: "/quiz/play?category=ANIME",
+    description: "작품명, 캐릭터 이름, 장면 힌트를 맞히는 애니메이션 퀴즈입니다.",
     stats: "작품명 / 캐릭터 / 장면 힌트",
   },
-] as const;
+];
+
+const BATTLE_ROOMS: Array<{
+  code: string;
+  title: string;
+  category: QuizCategory;
+  host: string;
+  players: string;
+}> = [
+  {
+    code: "JP-428",
+    title: "JPOP 빠른 대전",
+    category: "JPOP",
+    host: "user1",
+    players: "3 / 4",
+  },
+  {
+    code: "AN-105",
+    title: "애니 명대사 방",
+    category: "ANIME",
+    host: "user2",
+    players: "2 / 4",
+  },
+  {
+    code: "JP-777",
+    title: "신곡 맞히기",
+    category: "JPOP",
+    host: "mailron",
+    players: "1 / 4",
+  },
+];
 
 export default function QuizPage() {
   return (
     <main className={styles.page}>
       <section className={styles.hero}>
         <span>QUIZ MODE</span>
-        <h1>어떤 퀴즈로 시작할까요?</h1>
-        <p>JPOP과 애니메이션 중 하나를 고르고, 대전형 퀴즈 화면에서 빠르게 정답을 입력해보세요.</p>
+        <h1>솔로로 연습하고, 대전으로 겨뤄보세요</h1>
+        <p>
+          혼자 차분히 곡과 작품을 맞히거나, 방을 만들고 참가해 다른 유저와 실시간 퀴즈
+          대전을 즐길 수 있습니다.
+        </p>
       </section>
 
-      <section className={styles.categoryGrid} aria-label="Quiz category selection">
-        {QUIZ_CATEGORIES.map((category) => (
-          <Link className={styles.categoryCard} href={category.href} key={category.id}>
-            <span>{category.eyebrow}</span>
-            <h2>{category.title}</h2>
-            <p>{category.description}</p>
-            <strong>{category.stats}</strong>
-            <i>플레이 시작</i>
-          </Link>
-        ))}
+      <section className={styles.modeSection} aria-labelledby="solo-mode-title">
+        <div className={styles.sectionHeading}>
+          <span>Solo Mode</span>
+          <h2 id="solo-mode-title">솔로 모드</h2>
+          <p>카테고리를 선택하면 바로 혼자 플레이하는 퀴즈 화면으로 이동합니다.</p>
+        </div>
+
+        <div className={styles.categoryGrid} aria-label="Solo quiz category selection">
+          {QUIZ_CATEGORIES.map((category) => (
+            <Link
+              className={styles.categoryCard}
+              href={`/quiz/play?category=${category.id}&mode=solo`}
+              key={category.id}
+            >
+              <span>{category.eyebrow}</span>
+              <h3>{category.title}</h3>
+              <p>{category.description}</p>
+              <strong>{category.stats}</strong>
+              <i>솔로 시작</i>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.battleSection} aria-labelledby="battle-mode-title">
+        <div className={styles.sectionHeading}>
+          <span>Battle Mode</span>
+          <h2 id="battle-mode-title">대전 모드</h2>
+          <p>방을 만들거나, 현재 열린 방에 참가하거나, 방 코드로 바로 입장할 수 있습니다.</p>
+        </div>
+
+        <div className={styles.battleGrid}>
+          <article className={styles.lobbyCard}>
+            <div>
+              <span className={styles.cardBadge}>방 만들기</span>
+              <h3>새 대전 방 생성</h3>
+              <p>원하는 카테고리로 즉시 방을 만들고 퀴즈 대전을 시작합니다.</p>
+            </div>
+            <div className={styles.createActions}>
+              {QUIZ_CATEGORIES.map((category) => (
+                <Link
+                  href={`/quiz/play?category=${category.id}&mode=battle&room=NEW-${category.id}`}
+                  key={category.id}
+                >
+                  {category.title} 방 만들기
+                </Link>
+              ))}
+            </div>
+          </article>
+
+          <article className={styles.lobbyCard}>
+            <span className={styles.cardBadge}>방 참가하기</span>
+            <h3>방 코드로 입장</h3>
+            <form action="/quiz/play" className={styles.joinForm}>
+              <input name="mode" type="hidden" value="battle" />
+              <label>
+                카테고리
+                <select name="category" defaultValue="JPOP">
+                  {QUIZ_CATEGORIES.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                방 코드
+                <input name="room" placeholder="예: JP-428" required />
+              </label>
+              <button type="submit">방 참가하기</button>
+            </form>
+          </article>
+
+          <article className={`${styles.lobbyCard} ${styles.roomListCard}`}>
+            <span className={styles.cardBadge}>방 리스트</span>
+            <h3>현재 열린 방</h3>
+            <div className={styles.roomList}>
+              {BATTLE_ROOMS.map((room) => (
+                <Link
+                  className={styles.roomItem}
+                  href={`/quiz/play?category=${room.category}&mode=battle&room=${room.code}`}
+                  key={room.code}
+                >
+                  <div>
+                    <strong>{room.title}</strong>
+                    <span>
+                      {room.category} · 방장 {room.host}
+                    </span>
+                  </div>
+                  <em>{room.players}</em>
+                  <i>{room.code}</i>
+                </Link>
+              ))}
+            </div>
+          </article>
+        </div>
       </section>
     </main>
   );

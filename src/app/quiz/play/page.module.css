@@ -102,13 +102,25 @@
 .chatPanel {
   grid-area: chat;
   display: grid;
-  grid-template-rows: 1fr 58px auto;
+  grid-template-rows: auto 1fr 58px auto;
   gap: 12px;
   min-height: 250px;
   padding: 12px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(240, 244, 250, 0.9)),
     #edf1f6;
+}
+
+.chatHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 28px;
+  padding: 0 4px;
+  color: var(--ink);
+  font-size: 0.88rem;
+  font-weight: 950;
+  letter-spacing: -0.03em;
 }
 
 .modePanel {
