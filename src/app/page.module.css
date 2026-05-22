@@ -227,6 +227,7 @@
   margin-top: 8px;
   color: #ff5c7b;
   text-shadow: 0 18px 38px rgba(255, 65, 103, 0.26);
+  white-space: nowrap;
 }
 
 .hero p {
