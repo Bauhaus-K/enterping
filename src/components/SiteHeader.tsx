@@ -8,14 +8,17 @@ import styles from "./SiteHeader.module.css";
 export async function SiteHeader() {
   const currentUser = await getCurrentUser();
   const canOpenAdmin = isAdminUser(currentUser);
+  const headerClassName = canOpenAdmin
+    ? `${styles.header} ${styles.adminHeader}`
+    : `${styles.header} ${styles.publicHeader}`;
 
   return (
-    <header className={styles.header}>
+    <header className={headerClassName}>
       <Link className={styles.brand} href="/" aria-label="Enterping home">
         <span className={styles.logoMark} aria-hidden="true">
           <span />
         </span>
-        <strong>エンターピング</strong>
+        <strong>エンタピング</strong>
       </Link>
 
       <nav className={styles.nav} aria-label="Primary navigation">
@@ -24,10 +27,10 @@ export async function SiteHeader() {
         <Link href="/quiz">퀴즈</Link>
         <Link href="/ranking">랭킹</Link>
         <Link href="/notices">공지</Link>
+        {canOpenAdmin ? <Link href="/admin/operations">운영현황</Link> : null}
         {canOpenAdmin ? <Link href="/admin/typing">타이핑관리</Link> : null}
         {canOpenAdmin ? <Link href="/admin/quiz">퀴즈관리</Link> : null}
         {canOpenAdmin ? <Link href="/admin/notices">공지관리</Link> : null}
-        {canOpenAdmin ? <Link href="/admin/operations">운영현황</Link> : null}
       </nav>
 
       <div className={styles.actions}>

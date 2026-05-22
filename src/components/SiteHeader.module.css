@@ -28,6 +28,29 @@
   white-space: nowrap;
 }
 
+.publicHeader {
+  gap: 24px;
+  padding-right: 34px;
+}
+
+.publicHeader .brand strong {
+  font-size: 1.12rem;
+}
+
+.publicHeader .nav {
+  gap: 10px;
+}
+
+.publicHeader .nav a {
+  height: 34px;
+  padding: 0 13px;
+  font-size: 0.98rem;
+}
+
+.adminHeader .nav a {
+  font-size: 0.76rem;
+}
+
 .logoMark {
   position: relative;
   display: inline-flex;

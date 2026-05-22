@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { isAdminUser } from "../lib/admin";
+import { getCurrentUser } from "../lib/auth";
 import { JPOP_SONGS } from "../lib/jpopSongs";
 import styles from "./page.module.css";
 
@@ -16,7 +18,90 @@ const metrics = [
   { value: "2", label: "플레이 모드" },
 ];
 
-export default function HomePage() {
+const adminCards = [
+  {
+    href: "/admin/operations",
+    eyebrow: "OPERATIONS",
+    title: "운영 현황",
+    description: "DAU/WAU, 인기 곡, 실패율 높은 곡, 자막 오류 의심 라인을 확인합니다.",
+  },
+  {
+    href: "/admin/typing",
+    eyebrow: "TYPING DB",
+    title: "타이핑 곡 관리",
+    description: "J-pop 타이핑 곡, LRC 라인, YouTube 자막 가져오기, 공개 상태를 관리합니다.",
+  },
+  {
+    href: "/admin/quiz",
+    eyebrow: "QUIZ DB",
+    title: "퀴즈 관리",
+    description: "JPOP/ANIME 퀴즈 문제와 YouTube 오디오 구간을 관리합니다.",
+  },
+  {
+    href: "/admin/notices",
+    eyebrow: "NOTICE",
+    title: "공지 관리",
+    description: "사용자에게 노출되는 공지사항을 작성하고 공개 여부를 조정합니다.",
+  },
+];
+
+export default async function HomePage() {
+  const currentUser = await getCurrentUser();
+
+  if (isAdminUser(currentUser)) {
+    return <AdminHome username={currentUser?.displayName ?? currentUser?.username ?? "Admin"} />;
+  }
+
+  return <PublicHome />;
+}
+
+function AdminHome({ username }: { username: string }) {
+  return (
+    <main className={`${styles.page} ${styles.adminPage}`}>
+      <section className={styles.adminHero} aria-labelledby="admin-home-title">
+        <div>
+          <span className={styles.adminBadge}>ADMIN HOME</span>
+          <h1 id="admin-home-title">
+            {username}님,
+            <span>오늘의 운영을 시작하세요</span>
+          </h1>
+          <p>
+            관리자 로그인 상태에서는 일반 랜딩 대신 운영 허브를 먼저 보여줍니다.
+            콘텐츠 품질, 플레이 데이터, 공지, 퀴즈를 빠르게 점검하세요.
+          </p>
+        </div>
+
+        <div className={styles.adminQuickStats}>
+          <article>
+            <strong>{JPOP_SONGS.length}</strong>
+            <span>등록된 J-pop 곡</span>
+          </article>
+          <article>
+            <strong>4</strong>
+            <span>관리 메뉴</span>
+          </article>
+          <article>
+            <strong>Live</strong>
+            <span>운영 모드</span>
+          </article>
+        </div>
+      </section>
+
+      <section className={styles.adminGrid} aria-label="관리자 바로가기">
+        {adminCards.map((card) => (
+          <Link className={styles.adminCard} href={card.href} key={card.href}>
+            <span>{card.eyebrow}</span>
+            <h2>{card.title}</h2>
+            <p>{card.description}</p>
+            <strong>바로가기</strong>
+          </Link>
+        ))}
+      </section>
+    </main>
+  );
+}
+
+function PublicHome() {
   return (
     <main className={styles.page}>
       <section className={styles.hero} aria-labelledby="home-title">
@@ -24,7 +109,7 @@ export default function HomePage() {
           <div className={styles.badge}>JPOP · Anime · Typing Practice</div>
           <h1 id="home-title">
             좋아하는 일본 콘텐츠로
-            <span>타이핑 감각을 키우세요</span>
+            <span>타이핑을 즐겨라</span>
           </h1>
           <p>
             JPOP과 애니메이션 음악을 들으며 히라가나와 로마자를 따라 입력해보세요.
