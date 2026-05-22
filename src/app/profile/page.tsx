@@ -6,6 +6,7 @@ import { getCurrentUser } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
 import { getAccuracyStreak, REWARD_DEFINITIONS, type RewardDefinition } from "../../lib/rewards";
 import { AttendanceCheckInButton } from "./AttendanceCheckInButton";
+import { ProfileAiFeedback } from "./ProfileAiFeedback";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
@@ -188,6 +189,8 @@ export default async function ProfilePage() {
             />
           </div>
         </article>
+
+        <ProfileAiFeedback userId={user.id} typoLogCount={user.typoLogs.length} />
 
         <article className={`${styles.panel} ${styles.historyPanel}`}>
           <PanelHeader eyebrow="History" title="히스토리" description="최근 플레이 기록을 최신순으로 보여줍니다." />

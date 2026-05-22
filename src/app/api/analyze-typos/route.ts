@@ -7,6 +7,8 @@ import {
   type AiErrorFeedback,
   type TypingAnalysisTypoLog,
 } from "../../../lib/aiAnalysisPrompt";
+import { isAdminUser } from "../../../lib/admin";
+import { getCurrentUser } from "../../../lib/auth";
 import { prisma } from "../../../lib/prisma";
 
 export const runtime = "nodejs";
@@ -84,13 +86,18 @@ const FEEDBACK_SCHEMA = {
 } as const;
 
 export async function POST(request: Request) {
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    return NextResponse.json({ error: "Login is required to analyze typo logs." }, { status: 401 });
+  }
+
   const body = (await request.json()) as AnalyzeTyposRequestBody;
-  const userId = typeof body.userId === "string" ? body.userId : undefined;
+  const requestedUserId = typeof body.userId === "string" ? body.userId : undefined;
+  const userId = isAdminUser(currentUser) && requestedUserId ? requestedUserId : currentUser.id;
   const typoLogs = Array.isArray(body.typoLogs)
     ? (body.typoLogs as TypingAnalysisTypoLog[])
-    : userId
-      ? await getRecentTypoLogs(userId)
-      : [];
+    : await getRecentTypoLogs(userId);
 
   if (typoLogs.length === 0) {
     return NextResponse.json({ error: "No TypoLog data was provided or found." }, { status: 400 });

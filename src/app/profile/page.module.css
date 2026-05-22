@@ -122,9 +122,104 @@
 }
 
 .analysisPanel,
+.aiFeedbackPanel,
 .historyPanel,
 .rewardGoalPanel {
   grid-column: 1 / -1;
+}
+
+.aiFeedbackPanel {
+  display: grid;
+  gap: 18px;
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.aiFeedbackHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 92% 0%, rgba(68, 215, 199, 0.2), transparent 32%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.055));
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.2);
+}
+
+.aiFeedbackHeader span {
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  padding: 0 13px;
+  border: 1px solid rgba(68, 215, 199, 0.42);
+  border-radius: 999px;
+  color: #7df0dd;
+  background: rgba(68, 215, 199, 0.1);
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.aiFeedbackHeader h2 {
+  margin: 10px 0 8px;
+  color: #ffffff;
+  font-size: 1.55rem;
+  font-weight: 1000;
+  letter-spacing: -0.05em;
+}
+
+.aiFeedbackHeader p {
+  max-width: 640px;
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.aiFeedbackHeader button {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  color: #111827;
+  background: linear-gradient(135deg, #7df0dd, #ffcf7a);
+  box-shadow: 0 14px 28px rgba(68, 215, 199, 0.18);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 1000;
+}
+
+.aiFeedbackHeader button:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+  opacity: 0.64;
+}
+
+.aiFeedbackNotice,
+.aiFeedbackError {
+  padding: 14px 16px;
+  border-radius: 18px;
+  font-size: 0.9rem;
+  font-weight: 820;
+  line-height: 1.5;
+}
+
+.aiFeedbackNotice {
+  color: #d9fff9;
+  background: rgba(20, 184, 166, 0.16);
+}
+
+.aiFeedbackError {
+  color: #fecaca;
+  background: rgba(239, 68, 68, 0.16);
 }
 
 .panelHeader {
@@ -539,6 +634,15 @@
   .panelHeader p {
     text-align: left;
   }
+
+  .aiFeedbackHeader {
+    display: grid;
+    gap: 18px;
+  }
+
+  .aiFeedbackHeader button {
+    width: fit-content;
+  }
 }
 
 @media (max-width: 560px) {
@@ -622,5 +726,14 @@
   .rewardGoalCard {
     padding: 16px;
     border-radius: 22px;
+  }
+
+  .aiFeedbackHeader {
+    padding: 18px;
+    border-radius: 24px;
+  }
+
+  .aiFeedbackHeader button {
+    width: 100%;
   }
 }
