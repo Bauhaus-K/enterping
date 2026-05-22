@@ -116,10 +116,17 @@ export function GamePlayer({
 
   // Session saving logic
   useEffect(() => {
-    if (playerState !== PLAYER_STATE.ENDED || sessionSaved) {
+    const hasTyped = metrics.totalStrokes > 0;
+    const hasFinishedAllLyrics = haveAllLyricsBeenResolved(cachedLyrics, lineResults);
+
+    if (sessionSaved || !hasTyped || (playerState !== PLAYER_STATE.ENDED && !hasFinishedAllLyrics)) {
       return;
     }
     
+    if (!userId && !saveSession) {
+      return;
+    }
+
     useGameStore.getState().finalizeCurrentLine();
     const finalizedLineResults = useGameStore.getState().lineResults;
     setSessionSaved(true);
@@ -162,7 +169,7 @@ export function GamePlayer({
             }),
           });
 
-          if (!response.ok && response.status !== 401) {
+          if (!response.ok) {
             throw new Error(`Session save failed with status ${response.status}`);
           }
 
@@ -172,9 +179,6 @@ export function GamePlayer({
             };
             dispatchRewardNotifications(data.unlockedRewards ?? []);
           }
-        } else {
-          // Keep anonymous practice playable without forcing login.
-          await new Promise((resolve) => setTimeout(resolve, 350));
         }
         setSessionSaveState("saved");
         onSessionSaved?.(sessionDraft);
@@ -186,7 +190,7 @@ export function GamePlayer({
     };
     
     doSave();
-  }, [playerState, sessionSaved, userId, content.id, gameMode, inputMode, metrics, sessionStartedAt, typoLogs, lineResults, saveSession, onSessionSaved, setSessionSaveState, setSessionSaved]);
+  }, [playerState, sessionSaved, userId, content, gameMode, inputMode, metrics, sessionStartedAt, typoLogs, lineResults, cachedLyrics, saveSession, onSessionSaved, setSessionSaveState, setSessionSaved]);
 
   const shellClassName = className ? `${styles.shell} ${className}` : styles.shell;
   const firstLyricStartMs = Math.max(
@@ -211,9 +215,27 @@ export function GamePlayer({
         onCorrectLyric={onCorrectLyric}
         onValidationChange={onValidationChange} 
       />
-      <ModePanel gameMode={gameMode} />
+      <ModePanel gameMode={gameMode} isLoggedIn={Boolean(userId)} />
     </section>
   );
+}
+
+function haveAllLyricsBeenResolved(
+  lyrics: GamePlayerLyricSync[],
+  lineResults: GameSessionDraft["lineResults"],
+): boolean {
+  if (lyrics.length === 0) {
+    return false;
+  }
+
+  const lyricIds = new Set(lyrics.map((lyric) => lyric.id));
+  const resolvedIds = new Set(
+    lineResults
+      .map((lineResult) => lineResult.lyricSyncId)
+      .filter((lyricSyncId): lyricSyncId is string => Boolean(lyricSyncId)),
+  );
+
+  return [...lyricIds].every((lyricId) => resolvedIds.has(lyricId));
 }
 
 function findActiveLyric(
