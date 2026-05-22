@@ -16,7 +16,6 @@ interface RecentSession {
   userId: string;
   contentId: string;
   accuracy: number;
-  score: number;
   playtimeMs: number;
   startedAt: Date;
   content: {
@@ -40,6 +39,24 @@ interface RecentSession {
   }>;
 }
 
+interface RecentTypoLog {
+  id: string;
+  targetCharacter: string;
+  inputtedCharacter: string;
+  lyricSync: {
+    id: string;
+    lineIndex: number;
+    japaneseText: string;
+    romajiText: string;
+    content: {
+      id: string;
+      title: string;
+      artist: string | null;
+      category: string;
+    };
+  } | null;
+}
+
 interface PopularSongMetric {
   id: string;
   title: string;
@@ -56,7 +73,6 @@ interface FailureSongMetric {
   title: string;
   artist: string | null;
   category: string;
-  thumbnailUrl: string | null;
   attempts: number;
   failedAttempts: number;
   failureRate: number;
@@ -76,6 +92,7 @@ interface SuspiciousLineMetric {
   failureRate: number;
   averageDelayMs: number;
   averageTypoCount: number;
+  source: "line-result" | "typo-log" | "mixed";
 }
 
 export default async function AdminOperationsPage() {
@@ -90,18 +107,25 @@ export default async function AdminOperationsPage() {
   const since7Days = new Date(now.getTime() - 7 * DAY_MS);
   const todayStart = getStartOfDay(now);
 
-  const [recentSessions, popularContents, dailyActiveUsers, weeklyActiveUsers, totalPublishedContents] =
-    await Promise.all([
-      getRecentSessions(since30Days),
-      getPopularContents(),
-      countActiveUsers(todayStart),
-      countActiveUsers(since7Days),
-      prisma.content.count({ where: { isPublished: true } }),
-    ]);
+  const [
+    recentSessions,
+    recentTypoLogs,
+    popularContents,
+    dailyActiveUsers,
+    weeklyActiveUsers,
+    totalPublishedContents,
+  ] = await Promise.all([
+    getRecentSessions(since30Days),
+    getRecentTypoLogs(since30Days),
+    getPopularContents(),
+    countActiveUsers(todayStart),
+    countActiveUsers(since7Days),
+    prisma.content.count({ where: { isPublished: true } }),
+  ]);
 
   const popularSongs = buildPopularSongs(recentSessions, popularContents);
   const highFailureSongs = buildHighFailureSongs(recentSessions);
-  const suspiciousLines = buildSuspiciousLines(recentSessions);
+  const suspiciousLines = buildSuspiciousLines(recentSessions, recentTypoLogs);
   const totalRecentSessions = recentSessions.length;
   const averageAccuracy = average(recentSessions.map((session) => session.accuracy));
   const totalRecentPlaytimeMs = sum(recentSessions.map((session) => session.playtimeMs));
@@ -110,7 +134,7 @@ export default async function AdminOperationsPage() {
     <main className={styles.page}>
       <section className={styles.hero}>
         <span>ADMIN OPERATIONS</span>
-        <h1>운영 대시보드</h1>
+        <h1>운영 현황</h1>
         <p>
           최근 30일 플레이 데이터를 기준으로 인기 곡, 실패율 높은 곡, 자막 오류 의심 라인,
           DAU/WAU를 한 번에 확인합니다.
@@ -176,7 +200,8 @@ export default async function AdminOperationsPage() {
             <h2>자막 오류 의심 라인</h2>
           </div>
           <p>
-            여러 사용자가 같은 라인에서 실패하거나, 평균 지연 시간이 길거나, 오타 수가 높은 라인을 우선 확인합니다.
+            같은 라인에서 실패가 반복되거나 평균 지연 시간이 길거나 오타가 많이 쌓인 라인을 우선 확인합니다.
+            라인 결과가 부족할 때는 최근 오타 로그를 보조 지표로 사용합니다.
           </p>
         </div>
 
@@ -194,7 +219,7 @@ export default async function AdminOperationsPage() {
                 <div>
                   <strong>{line.contentTitle}</strong>
                   <span>
-                    {line.artist ?? "Unknown Artist"} · #{line.lineIndex + 1}
+                    {line.artist ?? "Unknown Artist"} · #{line.lineIndex + 1} · {getSourceLabel(line.source)}
                   </span>
                 </div>
                 <div>
@@ -207,7 +232,7 @@ export default async function AdminOperationsPage() {
               </article>
             ))
           ) : (
-            <EmptyState text="자막 오류 의심 라인이 아직 없습니다. 라인별 결과가 쌓이면 자동으로 표시됩니다." />
+            <EmptyState text="자막 오류 의심 라인이 아직 없습니다. 플레이 결과와 오타 로그가 쌓이면 자동으로 표시됩니다." />
           )}
         </div>
       </section>
@@ -303,7 +328,6 @@ async function getRecentSessions(since: Date): Promise<RecentSession[]> {
       userId: true,
       contentId: true,
       accuracy: true,
-      score: true,
       playtimeMs: true,
       startedAt: true,
       content: {
@@ -327,6 +351,41 @@ async function getRecentSessions(since: Date): Promise<RecentSession[]> {
           typoCount: true,
           isSuccess: true,
           isDifficult: true,
+        },
+      },
+    },
+  });
+}
+
+async function getRecentTypoLogs(since: Date): Promise<RecentTypoLog[]> {
+  return prisma.typoLog.findMany({
+    where: {
+      createdAt: {
+        gte: since,
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 1000,
+    select: {
+      id: true,
+      targetCharacter: true,
+      inputtedCharacter: true,
+      lyricSync: {
+        select: {
+          id: true,
+          lineIndex: true,
+          japaneseText: true,
+          romajiText: true,
+          content: {
+            select: {
+              id: true,
+              title: true,
+              artist: true,
+              category: true,
+            },
+          },
         },
       },
     },
@@ -426,7 +485,6 @@ function buildHighFailureSongs(recentSessions: RecentSession[]): FailureSongMetr
       title: session.content.title,
       artist: session.content.artist,
       category: session.content.category,
-      thumbnailUrl: session.content.thumbnailUrl,
       attempts: 0,
       failedAttempts: 0,
       failureRate: 0,
@@ -438,7 +496,7 @@ function buildHighFailureSongs(recentSessions: RecentSession[]): FailureSongMetr
     const totalLines = session.lineResults.length;
     const failedLines = session.lineResults.filter((line) => !line.isSuccess || line.isDifficult).length;
     current.attempts += totalLines > 0 ? totalLines : 1;
-    current.failedAttempts += totalLines > 0 ? failedLines : session.accuracy < 70 ? 1 : 0;
+    current.failedAttempts += totalLines > 0 ? failedLines : getSessionFailureWeight(session.accuracy);
     current.accuracyTotal += session.accuracy;
     current.sessionCount += 1;
     current.averageAccuracy = current.accuracyTotal / current.sessionCount;
@@ -458,19 +516,24 @@ function buildHighFailureSongs(recentSessions: RecentSession[]): FailureSongMetr
     .slice(0, 8);
 }
 
-function buildSuspiciousLines(recentSessions: RecentSession[]): SuspiciousLineMetric[] {
+function buildSuspiciousLines(
+  recentSessions: RecentSession[],
+  recentTypoLogs: RecentTypoLog[],
+): SuspiciousLineMetric[] {
   const groups = new Map<
     string,
     SuspiciousLineMetric & {
       delayTotal: number;
       typoTotal: number;
+      lineResultHits: number;
+      typoLogHits: number;
     }
   >();
 
   for (const session of recentSessions) {
     for (const line of session.lineResults) {
       const key = line.lyricSyncId ?? `${session.contentId}:${line.lineIndex}:${line.japaneseText.slice(0, 80)}`;
-      const current = groups.get(key) ?? {
+      const current = groups.get(key) ?? createSuspiciousLineGroup({
         key,
         contentTitle: session.content.title,
         artist: session.content.artist,
@@ -478,19 +541,13 @@ function buildSuspiciousLines(recentSessions: RecentSession[]): SuspiciousLineMe
         japaneseText: line.japaneseText,
         expectedInput: line.expectedInput,
         submittedInputSample: line.submittedInput,
-        attempts: 0,
-        failedAttempts: 0,
-        failureRate: 0,
-        averageDelayMs: 0,
-        averageTypoCount: 0,
-        delayTotal: 0,
-        typoTotal: 0,
-      };
+      });
 
       current.attempts += 1;
       current.failedAttempts += !line.isSuccess || line.isDifficult ? 1 : 0;
       current.delayTotal += line.responseDelayMs ?? 0;
       current.typoTotal += line.typoCount;
+      current.lineResultHits += 1;
 
       if (!current.submittedInputSample && line.submittedInput) {
         current.submittedInputSample = line.submittedInput;
@@ -500,20 +557,115 @@ function buildSuspiciousLines(recentSessions: RecentSession[]): SuspiciousLineMe
     }
   }
 
+  for (const typoLog of recentTypoLogs) {
+    if (!typoLog.lyricSync) {
+      continue;
+    }
+
+    const key = typoLog.lyricSync.id;
+    const current = groups.get(key) ?? createSuspiciousLineGroup({
+      key,
+      contentTitle: typoLog.lyricSync.content.title,
+      artist: typoLog.lyricSync.content.artist,
+      lineIndex: typoLog.lyricSync.lineIndex,
+      japaneseText: typoLog.lyricSync.japaneseText,
+      expectedInput: typoLog.lyricSync.romajiText,
+      submittedInputSample: typoLog.inputtedCharacter,
+    });
+
+    current.attempts += current.lineResultHits > 0 ? 0 : 1;
+    current.failedAttempts += 1;
+    current.typoTotal += 1;
+    current.typoLogHits += 1;
+
+    if (!current.submittedInputSample && typoLog.inputtedCharacter) {
+      current.submittedInputSample = typoLog.inputtedCharacter;
+    }
+
+    groups.set(key, current);
+  }
+
   return [...groups.values()]
     .map((line) => ({
       ...line,
+      source: getLineSource(line.lineResultHits, line.typoLogHits),
       failureRate: line.attempts > 0 ? line.failedAttempts / line.attempts : 0,
       averageDelayMs: line.attempts > 0 ? line.delayTotal / line.attempts : 0,
-      averageTypoCount: line.attempts > 0 ? line.typoTotal / line.attempts : 0,
+      averageTypoCount: line.attempts > 0 ? line.typoTotal / line.attempts : line.typoTotal,
     }))
-    .filter((line) => line.failureRate >= 0.5 || line.averageDelayMs >= 6000 || line.averageTypoCount >= 1.5)
+    .filter((line) => line.failureRate >= 0.45 || line.averageDelayMs >= 6000 || line.averageTypoCount >= 1.2)
     .sort((left, right) => {
       const leftScore = left.failureRate * 100 + left.averageDelayMs / 1000 + left.averageTypoCount * 10;
       const rightScore = right.failureRate * 100 + right.averageDelayMs / 1000 + right.averageTypoCount * 10;
       return rightScore - leftScore;
     })
     .slice(0, 12);
+}
+
+function createSuspiciousLineGroup({
+  key,
+  contentTitle,
+  artist,
+  lineIndex,
+  japaneseText,
+  expectedInput,
+  submittedInputSample,
+}: {
+  key: string;
+  contentTitle: string;
+  artist: string | null;
+  lineIndex: number;
+  japaneseText: string;
+  expectedInput: string;
+  submittedInputSample: string;
+}) {
+  return {
+    key,
+    contentTitle,
+    artist,
+    lineIndex,
+    japaneseText,
+    expectedInput,
+    submittedInputSample,
+    attempts: 0,
+    failedAttempts: 0,
+    failureRate: 0,
+    averageDelayMs: 0,
+    averageTypoCount: 0,
+    delayTotal: 0,
+    typoTotal: 0,
+    lineResultHits: 0,
+    typoLogHits: 0,
+    source: "line-result" as const,
+  };
+}
+
+function getSessionFailureWeight(accuracy: number): number {
+  if (accuracy < 70) {
+    return 1;
+  }
+
+  if (accuracy < 90) {
+    return 0.5;
+  }
+
+  return 0;
+}
+
+function getLineSource(lineResultHits: number, typoLogHits: number): SuspiciousLineMetric["source"] {
+  if (lineResultHits > 0 && typoLogHits > 0) {
+    return "mixed";
+  }
+
+  return typoLogHits > 0 ? "typo-log" : "line-result";
+}
+
+function getSourceLabel(source: SuspiciousLineMetric["source"]): string {
+  if (source === "mixed") {
+    return "라인+오타";
+  }
+
+  return source === "typo-log" ? "오타로그" : "라인결과";
 }
 
 function getStartOfDay(value: Date): Date {

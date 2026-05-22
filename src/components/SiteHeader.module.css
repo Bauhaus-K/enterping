@@ -4,9 +4,9 @@
   z-index: 50;
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 16px;
   min-height: 52px;
-  padding: 0 40px 0 22px;
+  padding: 0 24px 0 18px;
   color: #ffffff;
   background: rgba(18, 26, 39, 0.96);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -20,10 +20,12 @@
   gap: 10px;
   color: #ffffff;
   text-decoration: none;
+  flex: 0 0 auto;
 }
 
 .brand strong {
-  font-size: 1.05rem;
+  font-size: 0.98rem;
+  white-space: nowrap;
 }
 
 .logoMark {
@@ -76,18 +78,21 @@
 .nav {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+  flex: 1 1 auto;
   min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .nav a {
   display: inline-flex;
   align-items: center;
-  height: 32px;
-  padding: 0 14px;
+  height: 30px;
+  padding: 0 9px;
   color: #c5ccd9;
   border-radius: 8px;
-  font-size: 0.88rem;
+  font-size: 0.78rem;
   font-weight: 850;
   text-decoration: none;
 }
@@ -100,8 +105,9 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   margin-left: auto;
+  flex: 0 1 auto;
   min-width: 0;
 }
 
@@ -113,9 +119,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 300px;
-  height: 36px;
-  padding: 0 13px;
+  width: clamp(160px, 18vw, 240px);
+  height: 34px;
+  padding: 0 11px;
   border: 1px solid rgba(202, 213, 229, 0.24);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.09);
@@ -169,10 +175,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 36px;
-  padding: 0 18px;
+  height: 34px;
+  padding: 0 13px;
   color: #ffffff;
-  font-size: 0.84rem;
+  font-size: 0.78rem;
   font-weight: 900;
   text-decoration: none;
 }
