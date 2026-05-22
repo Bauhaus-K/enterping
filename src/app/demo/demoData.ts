@@ -94,6 +94,28 @@ export const fallbackDemoData: DemoSandboxProps = {
       weakness: "sokuon timing and tsu transitions",
       tip: "Practice short loops like matte, kitte, tsuyoku, and tsurete while saying the doubled consonant rhythm out loud.",
       encouragement: "Your speed is already climbing. A little rhythm practice will make the accuracy follow quickly.",
+      trainingRecommendations: [
+        {
+          patternId: "sokuon",
+          label: "촉음(っ) 입력 타이밍",
+          count: 3,
+          severity: "medium",
+          focusKana: ["っ"],
+          reason: "Small っ lines show repeated doubled-consonant misses.",
+          drill: "Practice matte, kitte, and zutto with a clear doubled-consonant beat.",
+          samplePrompts: ["まって / matte", "きって / kitte", "ずっと / zutto"],
+        },
+        {
+          patternId: "shi-chi-tsu",
+          label: "し/ち/つ 계열 구분",
+          count: 2,
+          severity: "low",
+          focusKana: ["し", "ち", "つ"],
+          reason: "The sh/ch/ts clusters need a more stable finger pattern.",
+          drill: "Type shi, chi, tsu as three slow loops before starting a song.",
+          samplePrompts: ["しる / shiru", "ちかい / chikai", "つよく / tsuyoku"],
+        },
+      ],
     },
   },
 };

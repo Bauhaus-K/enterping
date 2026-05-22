@@ -33,8 +33,54 @@ const FEEDBACK_SCHEMA = {
       type: "string",
       description: "Short motivating Korean message.",
     },
+    trainingRecommendations: {
+      type: "array",
+      minItems: 1,
+      maxItems: 4,
+      description: "Japanese pronunciation-pattern drills based on the learner's typo logs.",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          patternId: {
+            type: "string",
+            enum: ["sokuon", "shi-chi-tsu", "long-vowel", "youon", "kana-romaji"],
+          },
+          label: {
+            type: "string",
+          },
+          count: {
+            type: "integer",
+            minimum: 0,
+          },
+          severity: {
+            type: "string",
+            enum: ["low", "medium", "high"],
+          },
+          focusKana: {
+            type: "array",
+            items: {
+              type: "string",
+            },
+          },
+          reason: {
+            type: "string",
+          },
+          drill: {
+            type: "string",
+          },
+          samplePrompts: {
+            type: "array",
+            items: {
+              type: "string",
+            },
+          },
+        },
+        required: ["patternId", "label", "count", "severity", "focusKana", "reason", "drill", "samplePrompts"],
+      },
+    },
   },
-  required: ["weakness", "tip", "encouragement"],
+  required: ["weakness", "tip", "encouragement", "trainingRecommendations"],
 } as const;
 
 export async function POST(request: Request) {

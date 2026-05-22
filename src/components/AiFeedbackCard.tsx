@@ -36,6 +36,31 @@ export function AiFeedbackCard({ feedback, isLoading = false }: AiFeedbackCardPr
             <span>Encouragement</span>
             <p>{feedback.encouragement}</p>
           </section>
+          {feedback.trainingRecommendations?.length ? (
+            <section className={styles.trainingBlock}>
+              <span>Pattern Training</span>
+              <div className={styles.trainingList}>
+                {feedback.trainingRecommendations.map((recommendation) => (
+                  <article key={recommendation.patternId} className={styles.trainingItem}>
+                    <div>
+                      <strong>{recommendation.label}</strong>
+                      <small>
+                        {recommendation.severity.toUpperCase()} · {recommendation.count}회 감지
+                      </small>
+                    </div>
+                    <p>{recommendation.drill}</p>
+                    {recommendation.samplePrompts.length > 0 ? (
+                      <div className={styles.sampleChips}>
+                        {recommendation.samplePrompts.slice(0, 3).map((sample) => (
+                          <span key={sample}>{sample}</span>
+                        ))}
+                      </div>
+                    ) : null}
+                  </article>
+                ))}
+              </div>
+            </section>
+          ) : null}
         </div>
       ) : (
         <div className={styles.emptyState}>

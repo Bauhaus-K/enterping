@@ -94,6 +94,62 @@
   line-height: 1.6;
 }
 
+.trainingBlock {
+  display: grid;
+  gap: 12px;
+}
+
+.trainingList {
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.trainingItem {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid rgba(68, 215, 199, 0.18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.trainingItem div:first-child {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.trainingItem strong {
+  color: #fff8e7;
+  font-size: 1rem;
+}
+
+.trainingItem small {
+  color: rgba(68, 215, 199, 0.8);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.sampleChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sampleChips span {
+  width: auto;
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: rgba(255, 248, 231, 0.86);
+  background: rgba(255, 207, 122, 0.12);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
 .emptyState strong {
   color: #fff8e7;
 }

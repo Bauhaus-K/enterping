@@ -111,12 +111,40 @@ const MOCK_AI_FEEDBACK: AiErrorFeedback = {
   encouragement: "이미 속도는 좋아지고 있어요. 이제 리듬만 잡으면 정확도가 확 올라갑니다.",
 };
 
+const MOCK_PATTERN_AI_FEEDBACK: AiErrorFeedback = {
+  weakness: "촉음(っ)과 し/ち/つ 입력 리듬",
+  tip: "matte, kitto, tsuyoku처럼 자음이 겹치거나 sh/ch/ts가 들어가는 단어를 30초씩 느리게 반복해 보세요.",
+  encouragement: "이미 속도는 좋아지고 있어요. 이제 발음 패턴별 리듬만 잡으면 정확도가 더 안정됩니다.",
+  trainingRecommendations: [
+    {
+      patternId: "sokuon",
+      label: "촉음(っ) 입력 타이밍",
+      count: 4,
+      severity: "medium",
+      focusKana: ["っ"],
+      reason: "작은 っ이 있는 단어에서 다음 자음을 한 번 더 누르는 타이밍이 흔들립니다.",
+      drill: "ma-t-te처럼 박자를 나누어 읽고, 같은 속도로 matte를 입력하세요.",
+      samplePrompts: ["まって / matte", "きっと / kitto", "ずっと / zutto"],
+    },
+    {
+      patternId: "shi-chi-tsu",
+      label: "し/ち/つ 계열 구분",
+      count: 3,
+      severity: "medium",
+      focusKana: ["し", "ち", "つ"],
+      reason: "sh/ch/ts 조합 주변에서 오타가 반복됩니다.",
+      drill: "shi, chi, tsu를 한 세트로 묶어 천천히 입력한 뒤 속도를 올리세요.",
+      samplePrompts: ["しる / shiru", "ちかい / chikai", "つよく / tsuyoku"],
+    },
+  ],
+};
+
 export function UserDashboard({
   username = "Enterping Player",
   typoLogs = MOCK_TYPO_LOGS,
   sessions = MOCK_SESSIONS,
   rewards = MOCK_REWARDS,
-  aiFeedback = MOCK_AI_FEEDBACK,
+  aiFeedback = MOCK_PATTERN_AI_FEEDBACK,
   isAiFeedbackLoading = false,
   isPremium = false,
 }: UserDashboardProps) {
