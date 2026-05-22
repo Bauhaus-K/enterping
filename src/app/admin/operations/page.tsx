@@ -120,7 +120,7 @@ export default async function AdminOperationsPage() {
     getPopularContents(),
     countActiveUsers(todayStart),
     countActiveUsers(since7Days),
-    prisma.content.count({ where: { isPublished: true } }),
+    countPublishedContents(),
   ]);
 
   const popularSongs = buildPopularSongs(recentSessions, popularContents);
@@ -313,117 +313,185 @@ function EmptyState({ text }: { text: string }) {
 }
 
 async function getRecentSessions(since: Date): Promise<RecentSession[]> {
-  return prisma.gameSession.findMany({
-    where: {
-      startedAt: {
-        gte: since,
-      },
-    },
-    orderBy: {
-      startedAt: "desc",
-    },
-    take: 2000,
-    select: {
-      id: true,
-      userId: true,
-      contentId: true,
-      accuracy: true,
-      playtimeMs: true,
-      startedAt: true,
-      content: {
-        select: {
-          id: true,
-          title: true,
-          artist: true,
-          category: true,
-          thumbnailUrl: true,
-          playCount: true,
+  try {
+    return await prisma.gameSession.findMany({
+      where: {
+        startedAt: {
+          gte: since,
         },
       },
-      lineResults: {
-        select: {
-          lyricSyncId: true,
-          lineIndex: true,
-          japaneseText: true,
-          expectedInput: true,
-          submittedInput: true,
-          responseDelayMs: true,
-          typoCount: true,
-          isSuccess: true,
-          isDifficult: true,
+      orderBy: {
+        startedAt: "desc",
+      },
+      take: 2000,
+      select: {
+        id: true,
+        userId: true,
+        contentId: true,
+        accuracy: true,
+        playtimeMs: true,
+        startedAt: true,
+        content: {
+          select: {
+            id: true,
+            title: true,
+            artist: true,
+            category: true,
+            thumbnailUrl: true,
+            playCount: true,
+          },
+        },
+        lineResults: {
+          select: {
+            lyricSyncId: true,
+            lineIndex: true,
+            japaneseText: true,
+            expectedInput: true,
+            submittedInput: true,
+            responseDelayMs: true,
+            typoCount: true,
+            isSuccess: true,
+            isDifficult: true,
+          },
         },
       },
-    },
-  });
-}
+    });
+  } catch (error) {
+    console.warn("[Enterping][Operations] Failed to load line results. Falling back to session-only metrics.", error);
 
-async function getRecentTypoLogs(since: Date): Promise<RecentTypoLog[]> {
-  return prisma.typoLog.findMany({
-    where: {
-      createdAt: {
-        gte: since,
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: 1000,
-    select: {
-      id: true,
-      targetCharacter: true,
-      inputtedCharacter: true,
-      lyricSync: {
+    try {
+      const sessions = await prisma.gameSession.findMany({
+        where: {
+          startedAt: {
+            gte: since,
+          },
+        },
+        orderBy: {
+          startedAt: "desc",
+        },
+        take: 2000,
         select: {
           id: true,
-          lineIndex: true,
-          japaneseText: true,
-          romajiText: true,
+          userId: true,
+          contentId: true,
+          accuracy: true,
+          playtimeMs: true,
+          startedAt: true,
           content: {
             select: {
               id: true,
               title: true,
               artist: true,
               category: true,
+              thumbnailUrl: true,
+              playCount: true,
+            },
+          },
+        },
+      });
+
+      return sessions.map((session) => ({
+        ...session,
+        lineResults: [],
+      }));
+    } catch (fallbackError) {
+      console.warn("[Enterping][Operations] Failed to load session fallback metrics.", fallbackError);
+      return [];
+    }
+  }
+}
+
+async function getRecentTypoLogs(since: Date): Promise<RecentTypoLog[]> {
+  try {
+    return await prisma.typoLog.findMany({
+      where: {
+        createdAt: {
+          gte: since,
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 1000,
+      select: {
+        id: true,
+        targetCharacter: true,
+        inputtedCharacter: true,
+        lyricSync: {
+          select: {
+            id: true,
+            lineIndex: true,
+            japaneseText: true,
+            romajiText: true,
+            content: {
+              select: {
+                id: true,
+                title: true,
+                artist: true,
+                category: true,
+              },
             },
           },
         },
       },
-    },
-  });
+    });
+  } catch (error) {
+    console.warn("[Enterping][Operations] Failed to load typo logs.", error);
+    return [];
+  }
 }
 
 async function getPopularContents() {
-  return prisma.content.findMany({
-    where: {
-      isPublished: true,
-    },
-    orderBy: [{ playCount: "desc" }, { updatedAt: "desc" }],
-    take: 10,
-    select: {
-      id: true,
-      title: true,
-      artist: true,
-      category: true,
-      thumbnailUrl: true,
-      playCount: true,
-    },
-  });
+  try {
+    return await prisma.content.findMany({
+      where: {
+        isPublished: true,
+      },
+      orderBy: [{ playCount: "desc" }, { updatedAt: "desc" }],
+      take: 10,
+      select: {
+        id: true,
+        title: true,
+        artist: true,
+        category: true,
+        thumbnailUrl: true,
+        playCount: true,
+      },
+    });
+  } catch (error) {
+    console.warn("[Enterping][Operations] Failed to load popular contents.", error);
+    return [];
+  }
 }
 
 async function countActiveUsers(since: Date): Promise<number> {
-  const activeUsers = await prisma.gameSession.findMany({
-    where: {
-      startedAt: {
-        gte: since,
+  try {
+    const activeUsers = await prisma.gameSession.findMany({
+      where: {
+        startedAt: {
+          gte: since,
+        },
       },
-    },
-    distinct: ["userId"],
-    select: {
-      userId: true,
-    },
-  });
+      distinct: ["userId"],
+      select: {
+        userId: true,
+      },
+    });
 
-  return activeUsers.length;
+    return activeUsers.length;
+  } catch (error) {
+    console.warn("[Enterping][Operations] Failed to count active users.", error);
+    return 0;
+  }
+}
+
+async function countPublishedContents(): Promise<number> {
+  try {
+    return await prisma.content.count({ where: { isPublished: true } });
+  } catch (error) {
+    console.warn("[Enterping][Operations] Failed to count published contents.", error);
+    return 0;
+  }
 }
 
 function buildPopularSongs(
