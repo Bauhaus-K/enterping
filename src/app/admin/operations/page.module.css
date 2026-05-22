@@ -1,0 +1,434 @@
+.page {
+  min-height: 100vh;
+  padding-bottom: 76px;
+  color: #f8fafc;
+  background:
+    radial-gradient(circle at 14% 10%, rgba(255, 65, 103, 0.22), transparent 28%),
+    radial-gradient(circle at 88% 18%, rgba(68, 215, 199, 0.18), transparent 26%),
+    linear-gradient(#172033 1px, transparent 1px),
+    linear-gradient(90deg, #172033 1px, transparent 1px),
+    #0f1725;
+  background-size: auto, auto, 34px 34px, 34px 34px, auto;
+}
+
+.hero,
+.metricGrid,
+.dashboardGrid,
+.fullPanel {
+  width: min(1180px, calc(100% - 48px));
+  margin: 0 auto;
+}
+
+.hero {
+  padding: 62px 0 26px;
+}
+
+.hero > span,
+.panelHeader span {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 28px;
+  padding: 0 14px;
+  border: 1px solid rgba(68, 215, 199, 0.38);
+  border-radius: 999px;
+  color: #7df0dd;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.1em;
+}
+
+.hero h1 {
+  margin: 18px 0 10px;
+  color: #ffffff;
+  font-size: clamp(2.5rem, 6vw, 4.8rem);
+  font-weight: 1000;
+  letter-spacing: -0.07em;
+  line-height: 0.96;
+}
+
+.hero p,
+.panelHeader p {
+  max-width: 780px;
+  margin: 0;
+  color: #b8c2d2;
+  font-size: 0.98rem;
+  font-weight: 720;
+  line-height: 1.75;
+}
+
+.linkRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.linkRow a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 0.86rem;
+  font-weight: 920;
+  text-decoration: none;
+}
+
+.metricGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.metricCard,
+.panel,
+.fullPanel {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05)),
+    rgba(15, 23, 42, 0.74);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(18px);
+}
+
+.metricCard {
+  position: relative;
+  overflow: hidden;
+  min-height: 128px;
+  padding: 18px;
+  border-radius: 24px;
+}
+
+.metricCard::after {
+  position: absolute;
+  right: -24px;
+  bottom: -34px;
+  width: 96px;
+  height: 96px;
+  border-radius: 999px;
+  content: "";
+  opacity: 0.4;
+}
+
+.metricCard span,
+.metricCard p {
+  color: #aeb8c8;
+  font-size: 0.76rem;
+  font-weight: 880;
+}
+
+.metricCard strong {
+  display: block;
+  margin: 14px 0 8px;
+  color: #ffffff;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  font-weight: 1000;
+  letter-spacing: -0.05em;
+}
+
+.metricCard p {
+  margin: 0;
+}
+
+.mint::after {
+  background: #44d7c7;
+}
+
+.blue::after {
+  background: #60a5fa;
+}
+
+.pink::after {
+  background: #ff496b;
+}
+
+.amber::after {
+  background: #ffcf7a;
+}
+
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.panel,
+.fullPanel {
+  border-radius: 30px;
+  padding: 22px;
+}
+
+.fullPanel {
+  margin-top: 18px;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.panelHeader h2 {
+  margin: 10px 0 0;
+  color: #ffffff;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  font-weight: 1000;
+  letter-spacing: -0.04em;
+}
+
+.panelHeader p {
+  max-width: 440px;
+  font-size: 0.88rem;
+}
+
+.songList,
+.failureList {
+  display: grid;
+  gap: 12px;
+}
+
+.songRow {
+  display: grid;
+  grid-template-columns: 38px 72px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.rankBadge {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  color: #101725;
+  background: linear-gradient(135deg, #7df0dd, #ffcf7a);
+  font-size: 0.92rem;
+  font-weight: 1000;
+}
+
+.songRow img,
+.thumbnailFallback {
+  width: 72px;
+  height: 48px;
+  border-radius: 14px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.thumbnailFallback {
+  display: grid;
+  place-items: center;
+  color: #ffcf7a;
+  font-size: 1.25rem;
+  font-weight: 1000;
+}
+
+.songRow strong,
+.failureCard strong,
+.lineRow strong {
+  color: #ffffff;
+  font-weight: 1000;
+}
+
+.songRow span,
+.failureCard span,
+.lineRow span,
+.lineRow small {
+  display: block;
+  margin-top: 4px;
+  color: #9fabbd;
+  font-size: 0.8rem;
+  font-weight: 760;
+}
+
+.songRow dl {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+}
+
+.songRow dl div {
+  min-width: 72px;
+  padding: 9px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.55);
+  text-align: right;
+}
+
+.songRow dt {
+  color: #ffffff;
+  font-size: 0.96rem;
+  font-weight: 1000;
+}
+
+.songRow dd {
+  margin: 2px 0 0;
+  color: #9fabbd;
+  font-size: 0.68rem;
+  font-weight: 820;
+}
+
+.failureCard {
+  display: grid;
+  gap: 10px;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.progressTrack {
+  overflow: hidden;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.progressTrack span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffcf7a, #ff496b);
+}
+
+.failureCard p {
+  margin: 0;
+  color: #b8c2d2;
+  font-size: 0.84rem;
+  font-weight: 780;
+}
+
+.failureCard b {
+  color: #ffcf7a;
+}
+
+.lineTable {
+  display: grid;
+  gap: 8px;
+}
+
+.tableHead,
+.lineRow {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.8fr) minmax(260px, 1.35fr) 86px 92px 62px;
+  gap: 14px;
+  align-items: center;
+}
+
+.tableHead {
+  padding: 0 14px;
+  color: #7df0dd;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+}
+
+.lineRow {
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.lineRow p {
+  margin: 0;
+  color: #ffffff;
+  font-weight: 900;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.lineRow > strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.emptyState {
+  margin: 0;
+  padding: 18px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  color: #aeb8c8;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 0.9rem;
+  font-weight: 780;
+  line-height: 1.6;
+}
+
+@media (max-width: 1100px) {
+  .metricGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dashboardGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero,
+  .metricGrid,
+  .dashboardGrid,
+  .fullPanel {
+    width: min(100% - 28px, 1180px);
+  }
+
+  .hero {
+    padding-top: 42px;
+  }
+
+  .metricGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .panelHeader,
+  .songRow {
+    display: grid;
+  }
+
+  .songRow {
+    grid-template-columns: 38px minmax(0, 1fr);
+  }
+
+  .songRow img,
+  .thumbnailFallback,
+  .songRow dl {
+    grid-column: 1 / -1;
+  }
+
+  .songRow dl div {
+    flex: 1;
+    text-align: left;
+  }
+
+  .tableHead {
+    display: none;
+  }
+
+  .lineRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .metricGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel,
+  .fullPanel,
+  .metricCard {
+    border-radius: 22px;
+  }
+}
